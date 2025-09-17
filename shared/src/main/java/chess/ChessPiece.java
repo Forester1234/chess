@@ -82,7 +82,44 @@ public class ChessPiece {
                 {-1,0},
                 {0,-1}
         };
+        int[][] Ldirections = {
+                {2,1},
+                {2,-1},
+                {-2,1},
+                {-2,-1},
+                {1,2},
+                {-1,2},
+                {1,-2},
+                {-1,-2}
+        };
 
+
+
+        /*FOR Pawns --------------------------------------------------------------------------------------------------------*/
+        if (piece.getPieceType() == PieceType.PAWN) {}
+
+
+
+        /*FOR Kings --------------------------------------------------------------------------------------------------------*/
+        if (piece.getPieceType() == PieceType.KING) {
+            for (int[] dir : Rdirections) {
+                int row = myPosition.getRow() + dir[0];
+                int col = myPosition.getColumn() + dir[1];
+
+                if(row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece occupyingPiece = board.getPiece(newPos);
+
+                    if (occupyingPiece == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    } else {
+                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                    }
+                }
+            }
+        }
 
 
 
@@ -161,6 +198,29 @@ public class ChessPiece {
 
                     row += dir[0];
                     col += dir[1];
+                }
+            }
+        }
+
+
+
+        /*FOR Knights --------------------------------------------------------------------------------------------------------*/
+        if (piece.getPieceType() == PieceType.KNIGHT){
+            for (int[] dir : Ldirections) {
+                int row = myPosition.getRow() + dir[0];
+                int col = myPosition.getColumn() + dir[1];
+
+                if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+                    ChessPosition newPos = new ChessPosition(row, col);
+                    ChessPiece occupyingPiece = board.getPiece(newPos);
+
+                    if (occupyingPiece == null) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    } else {
+                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                            moves.add(new ChessMove(myPosition, newPos, null));
+                        }
+                    }
                 }
             }
         }
