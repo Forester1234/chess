@@ -111,25 +111,28 @@ public class ChessPiece {
                 last = 1;
             }
 
-            int promo = 0;
+            int promo = (myPosition.getRow() + dir == last) ? 1 : 0;
+
+            ChessPiece.PieceType[] promoPiece = {
+                    ChessPiece.PieceType.QUEEN,
+                    ChessPiece.PieceType.KNIGHT,
+                    ChessPiece.PieceType.BISHOP,
+                    ChessPiece.PieceType.ROOK
+            };
 
             int row = myPosition.getRow();
             int col = myPosition.getColumn();
 
-
-            //If next row is last trigger promotion piece options
-            if (myPosition.getRow() + dir == last){promo += 1;}
 
             //Move forward if empty
             if (board.getPiece(new ChessPosition(row + dir, col)) == null){
                 if (promo == 0) {
                     moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), null));
                 } else {
-                    // add all piece options
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), PieceType.KNIGHT));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), PieceType.BISHOP));
+                    // add all promotion piece options
+                    for (int i = 0; i < 4; i++){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), promoPiece[i]));
+                    }
                 }
             }
 
@@ -139,10 +142,9 @@ public class ChessPiece {
                     moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), null));
                 } else {
                     // add all piece options
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), PieceType.KNIGHT));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), PieceType.BISHOP));
+                    for (int i = 0; i < 4; i++){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), promoPiece[i]));
+                    }
                 }
             }
 
@@ -153,10 +155,9 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), null));
                     } else {
                         // add all piece options
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), PieceType.KNIGHT));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), PieceType.BISHOP));
+                        for (int i = 0; i < 4; i++){
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), promoPiece[i]));
+                        }
                     }
                 }
             }
@@ -168,10 +169,9 @@ public class ChessPiece {
                         moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), null));
                     } else {
                         // add all piece options
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), PieceType.QUEEN));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), PieceType.KNIGHT));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), PieceType.ROOK));
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), PieceType.BISHOP));
+                        for (int i = 0; i < 4; i++){
+                            moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), promoPiece[i]));
+                        }
                     }
                 }
             }
