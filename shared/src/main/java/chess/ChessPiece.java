@@ -60,7 +60,7 @@ public class ChessPiece {
         ChessPiece piece = board.getPiece(myPosition);
         List<ChessMove> moves = new ArrayList<>();
 
-        int[][] Rdirections = {
+        int[][] RoyalDirections = {
                 {1,1},
                 {1,-1},
                 {-1,1},
@@ -70,19 +70,19 @@ public class ChessPiece {
                 {-1,0},
                 {0,-1}
         };
-        int[][] Ddirections = {
+        int[][] DiagonalDirections = {
                 {1,1},
                 {1,-1},
                 {-1,1},
                 {-1,-1}
         };
-        int[][] Sdirections = {
+        int[][] StraightDirections = {
                 {1,0},
                 {0,1},
                 {-1,0},
                 {0,-1}
         };
-        int[][] Ldirections = {
+        int[][] LDirections = {
                 {2,1},
                 {2,-1},
                 {-2,1},
@@ -111,7 +111,10 @@ public class ChessPiece {
                 last = 1;
             }
 
-            int promo = (myPosition.getRow() + dir == last) ? 1 : 0;
+            int row = myPosition.getRow();
+            int col = myPosition.getColumn();
+
+            boolean promo = (row + dir == last);
 
             ChessPiece.PieceType[] promoPiece = {
                     ChessPiece.PieceType.QUEEN,
@@ -120,59 +123,45 @@ public class ChessPiece {
                     ChessPiece.PieceType.ROOK
             };
 
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
+            //Initialize Pawn Directions Array
+            List<int[]> PDirections = new ArrayList<>();
 
 
             //Move forward if empty
             if (board.getPiece(new ChessPosition(row + dir, col)) == null){
-                if (promo == 0) {
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), null));
-                } else {
-                    // add all promotion piece options
-                    for (int i = 0; i < 4; i++){
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col), promoPiece[i]));
-                    }
-                }
+                PDirections.add(new int[]{dir,0});
             }
 
             //Move forward 2 if empty in front and in front 2
             if (myPosition.getRow() == start && board.getPiece(new ChessPosition(row + dir, col)) == null && board.getPiece(new ChessPosition(row + dir + dir, col)) == null){
-                if (promo == 0) {
-                    moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), null));
-                } else {
-                    // add all piece options
-                    for (int i = 0; i < 4; i++){
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir + dir, col), promoPiece[i]));
-                    }
-                }
+                PDirections.add(new int[]{dir + dir,0});
             }
 
             //Move forward & left if opposite color piece is there
             if (col > 1 && board.getPiece(new ChessPosition(row + dir, col - 1)) != null){
                 if (board.getPiece(new ChessPosition(row + dir, col - 1)).getTeamColor() != piece.getTeamColor()){
-                    if (promo == 0) {
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), null));
-                    } else {
-                        // add all piece options
-                        for (int i = 0; i < 4; i++){
-                            moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col - 1), promoPiece[i]));
-                        }
-                    }
+                    PDirections.add(new int[]{dir,-1});
                 }
             }
 
             //Move forward & right if opposite color piece is there
             if (col < 8 && board.getPiece(new ChessPosition(row + dir, col + 1)) != null){
                 if (board.getPiece(new ChessPosition(row + dir, col + 1)).getTeamColor() != piece.getTeamColor()){
-                    if (promo == 0) {
-                        moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), null));
-                    } else {
-                        // add all piece options
-                        for (int i = 0; i < 4; i++){
-                            moves.add(new ChessMove(myPosition, new ChessPosition(row + dir, col + 1), promoPiece[i]));
-                        }
+                    PDirections.add(new int[]{dir,+1});
+                }
+            }
+
+            for (int[] Poi : PDirections) {
+                int newRow = row + Poi[0];
+                int newCol = col + Poi[1];
+                ChessPosition newPos = new ChessPosition(newRow, newCol);
+
+                if(promo) {
+                    for (int i = 0; i < 4; i++){
+                        moves.add(new ChessMove(myPosition, newPos,promoPiece[i]));
                     }
+                } else {
+                    moves.add(new ChessMove(myPosition, newPos,null));
                 }
             }
         }
@@ -181,7 +170,7 @@ public class ChessPiece {
 
         /*FOR Kings --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KING) {
-            for (int[] dir : Rdirections) {
+            for (int[] dir : RoyalDirections) {
                 int row = myPosition.getRow() + dir[0];
                 int col = myPosition.getColumn() + dir[1];
 
@@ -204,7 +193,7 @@ public class ChessPiece {
 
         /*FOR Queens --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.QUEEN) {
-            for (int[] dir : Rdirections) {
+            for (int[] dir : RoyalDirections) {
                 int row = myPosition.getRow() + dir[0];
                 int col = myPosition.getColumn() + dir[1];
 
@@ -231,7 +220,7 @@ public class ChessPiece {
 
         /*FOR Bishops --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.BISHOP) {
-            for (int[] dir : Ddirections) {
+            for (int[] dir : DiagonalDirections) {
                 int row = myPosition.getRow() + dir[0];
                 int col = myPosition.getColumn() + dir[1];
 
@@ -258,7 +247,7 @@ public class ChessPiece {
 
         /*FOR Rooks --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.ROOK){
-            for (int[] dir : Sdirections) {
+            for (int[] dir : StraightDirections) {
                 int row = myPosition.getRow() + dir[0];
                 int col = myPosition.getColumn() + dir[1];
 
@@ -285,7 +274,7 @@ public class ChessPiece {
 
         /*FOR Knights --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KNIGHT){
-            for (int[] dir : Ldirections) {
+            for (int[] dir : LDirections) {
                 int row = myPosition.getRow() + dir[0];
                 int col = myPosition.getColumn() + dir[1];
 
