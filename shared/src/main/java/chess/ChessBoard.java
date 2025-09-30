@@ -66,7 +66,7 @@ public class ChessBoard {
         for (int i = 0; i <= 1; i++){
             int row = (i == 0) ? 8 : 1;
             int prow = (i == 0) ? 7 : 2;
-            for (int col = 1; col <=8; col++){
+            for (int col = 1; col <= 8; col++){
                 addPiece(new ChessPosition(row, col), new ChessPiece(colors[i], backpiece[col - 1]));
                 addPiece(new ChessPosition(prow, col), new ChessPiece(colors[i], ChessPiece.PieceType.PAWN));
             }
