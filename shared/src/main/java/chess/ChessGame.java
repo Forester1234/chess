@@ -59,8 +59,6 @@ public class ChessGame {
             board.addPiece(end, new ChessPiece(piece.getTeamColor(), promo));
         }
 
-
-
         boolean check = false;
 
         if (test) {
@@ -115,6 +113,14 @@ public class ChessGame {
         performMove(move, false);
 
         currentTurn = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+
+
+        if (isInCheckmate(getTeamTurn())) {
+            System.out.println("Checkmate! " + getTeamTurn() + " loses.");
+        }
+        if (isInStalemate(getTeamTurn())) {
+            System.out.println("Stalemate! It's a Draw!");
+        }
     }
 
     /**
@@ -164,7 +170,24 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    ChessPosition position = new ChessPosition(row, col);
+                    ChessPiece piece = board.getPiece(position);
+
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> moves = validMoves(position);
+                        if (moves != null && !moves.isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
