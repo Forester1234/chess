@@ -98,7 +98,9 @@ public class ChessGame {
         ChessPosition start = move.getStartPosition();
         Collection<ChessMove> legalMoves = validMoves(start);
 
-        if (legalMoves == null || !legalMoves.contains(move)) {
+        ChessPiece piece = board.getPiece(start);
+
+        if (legalMoves == null || !legalMoves.contains(move) || piece.getTeamColor() != currentTurn) {
             throw new InvalidMoveException("Invalid move: " + move);
         }
 
