@@ -49,9 +49,17 @@ public class ChessGame {
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
         ChessPiece captured = board.getPiece(end);
+        ChessPiece.PieceType promo = move.getPromotionPiece();
 
-        board.addPiece(start, null);
-        board.addPiece(move.getEndPosition(), piece);
+        if (promo == null) {
+            board.addPiece(start, null);
+            board.addPiece(end, piece);
+        } else {
+            board.addPiece(start, null);
+            board.addPiece(end, new ChessPiece(piece.getTeamColor(), promo));
+        }
+
+
 
         boolean check = false;
 
