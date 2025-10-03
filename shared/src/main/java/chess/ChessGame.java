@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -116,7 +117,7 @@ public class ChessGame {
 
 
         if (isInCheckmate(getTeamTurn())) {
-            System.out.println("Checkmate! " + getTeamTurn() + " loses.");
+            System.out.println("Checkmate! " + currentTurn + " loses.");
         }
         if (isInStalemate(getTeamTurn())) {
             System.out.println("Stalemate! It's a Draw!");
@@ -225,5 +226,19 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && currentTurn == chessGame.currentTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, currentTurn);
     }
 }
