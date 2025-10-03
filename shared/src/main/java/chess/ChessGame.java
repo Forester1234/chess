@@ -46,7 +46,9 @@ public class ChessGame {
 
     Boolean performMove(ChessMove move, boolean test){
         ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
+        ChessPiece captured = board.getPiece(end);
 
         board.addPiece(start, null);
         board.addPiece(move.getEndPosition(), piece);
@@ -57,7 +59,7 @@ public class ChessGame {
             check = isInCheck(piece.getTeamColor());
 
             board.addPiece(start, piece);
-            board.addPiece(move.getEndPosition(), null);
+            board.addPiece(move.getEndPosition(), captured);
         }
         return check;
     }
@@ -72,7 +74,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
 
-        if (piece == null) return null;
+        if (piece == null || piece.getTeamColor() != currentTurn) return null;
 
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
         Collection<ChessMove> legalMoves = new ArrayList<>();
