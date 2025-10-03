@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -43,6 +44,24 @@ public class ChessGame {
         BLACK
     }
 
+    Boolean performMove(ChessMove move, boolean test){
+        ChessPosition start = move.getStartPosition();
+        ChessPiece piece = board.getPiece(start);
+
+        board.addPiece(start, null);
+        board.addPiece(move.getEndPosition(), piece);
+
+        boolean check = false;
+
+        if (test) {
+            check = isInCheck(piece.getTeamColor());
+
+            board.addPiece(start, piece);
+            board.addPiece(move.getEndPosition(), null);
+        }
+        return check;
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -52,7 +71,19 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        return piece.pieceMoves(board, startPosition);
+
+        if (piece == null) return null;
+
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+
+        for (ChessMove move : possibleMoves) {
+            if (!performMove(move, true)) {
+                legalMoves.add(move);
+            }
+        }
+
+        return legalMoves;
     }
 
     /**
@@ -69,10 +100,9 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid move: " + move);
         }
 
-        ChessPiece piece = board.getPiece(start);
-        board.addPiece(start, null);
+        performMove(move, false);
 
-        board.addPiece(move.getEndPosition(), piece);
+        currentTurn = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
