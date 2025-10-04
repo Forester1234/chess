@@ -22,6 +22,8 @@ public class ChessGame {
     private boolean blackKingsideRookMoved = false;
     private boolean blackQueensideRookMoved = false;
 
+    private ChessPosition enPassantTarget = null;
+
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
@@ -52,12 +54,30 @@ public class ChessGame {
         BLACK
     }
 
-    Boolean performMove(ChessMove move, boolean test){
+    private Boolean performMove(ChessMove move, boolean test){
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
         ChessPiece piece = board.getPiece(start);
         ChessPiece captured = board.getPiece(end);
         ChessPiece.PieceType promo = move.getPromotionPiece();
+
+        boolean isEnPassant = false;
+        ChessPosition capturedPawnPos = null;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                enPassantTarget != null &&
+                end.equals(enPassantTarget) &&
+                Math.abs(end.getColumn() - start.getColumn()) == 1 &&
+                board.getPiece(end) == null) {
+            int direction = (piece.getTeamColor() == TeamColor.WHITE) ? -1 : 1;
+            capturedPawnPos = new ChessPosition(end.getRow() + direction, end.getColumn());
+            captured = board.getPiece(capturedPawnPos);
+            isEnPassant = true;
+
+            if (!test) {
+                board.addPiece(capturedPawnPos, null);
+            }
+        }
 
         if (promo == null) {
             board.addPiece(start, null);
@@ -68,12 +88,16 @@ public class ChessGame {
         }
 
         boolean check = false;
-
         if (test) {
             check = isInCheck(piece.getTeamColor());
 
             board.addPiece(start, piece);
-            board.addPiece(move.getEndPosition(), captured);
+            board.addPiece(end, captured);
+
+            if (isEnPassant && capturedPawnPos != null) {
+                board.addPiece(end, null); // En passant target square was empty
+                board.addPiece(capturedPawnPos, captured);
+            }
         } else {
             if (piece.getPieceType() == ChessPiece.PieceType.KING) {
                 if (piece.getTeamColor() == TeamColor.WHITE) {
@@ -90,6 +114,18 @@ public class ChessGame {
                     if (start.equals(new ChessPosition(8,8))) blackKingsideRookMoved = true;
                 }
             }
+
+
+
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                    Math.abs(end.getRow() - start.getRow()) == 2) {
+                int col = start.getColumn();
+                int midRow = (start.getRow() + end.getRow()) / 2;
+                enPassantTarget = new ChessPosition(midRow, col);
+            } else {
+                enPassantTarget = null;
+            }
+
             if (captured != null && captured.getPieceType() == ChessPiece.PieceType.ROOK) {
                 if (captured.getTeamColor() == TeamColor.WHITE) {
                     if (end.equals(new ChessPosition(1,1))) whiteQueensideRookMoved = true;
@@ -206,6 +242,25 @@ public class ChessGame {
             }
         }
 
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && enPassantTarget != null) {
+            int row = startPosition.getRow();
+            int col = startPosition.getColumn();
+
+            int dir = (piece.getTeamColor() == TeamColor.WHITE) ? 1 : -1;
+            int expectedRow = (piece.getTeamColor() == TeamColor.WHITE) ? 5 : 4;
+
+            if (row == expectedRow) {
+                int enPassantCol = enPassantTarget.getColumn();
+
+                if (Math.abs(col - enPassantCol) == 1 && enPassantTarget.getRow() == row + dir) {
+                    ChessMove enPassantMove = new ChessMove(startPosition, enPassantTarget, null);
+                    if (!performMove(enPassantMove, true)) {
+                        legalMoves.add(enPassantMove);
+                    }
+                }
+            }
+        }
+
         return legalMoves;
     }
 
@@ -228,7 +283,6 @@ public class ChessGame {
         performMove(move, false);
 
         currentTurn = (currentTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-
 
         if (isInCheckmate(getTeamTurn())) {
             System.out.println("Checkmate! " + currentTurn + " loses.");
