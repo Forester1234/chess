@@ -16,7 +16,7 @@ public class ClearHandler implements Handler {
     public void handle(Context ctx) {
         try {
             service.clearAll();
-            ctx.status(200).json(new Object()); // return {}
+            ctx.status(200); // return {}
         } catch (Exception e) {
             ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
         }
