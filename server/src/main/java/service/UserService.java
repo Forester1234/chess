@@ -3,15 +3,20 @@ package service;
 import service.RegisterR.RegisterRequest;
 import service.RegisterR.RegisterResult;
 
+import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 
 import model.AuthData;
 import model.UserData;
 
+import java.util.UUID;
+
 public class UserService {
+    private final AuthDAO authDAO;
     private final UserDAO userDAO;
 
-    public UserService(UserDAO userDAO){
+    public UserService(AuthDAO authDAO, UserDAO userDAO){
+        this.authDAO = authDAO;
         this.userDAO = userDAO;
     }
 
@@ -28,9 +33,13 @@ public class UserService {
             throw new IllegalStateException("Error: already taken");
         }
 
-        UserData newUser = new UserData(register.username(), register.password(), register.email())
+        UserData newUser = new UserData(register.username(), register.password(), register.email());
         userDAO.createUser(newUser);
 
-        return null;
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, newUser.username());
+        authDAO.createAuth(authData);
+
+        return new RegisterResult(newUser.username(), authToken);
     }
 }
