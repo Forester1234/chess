@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.GameDAO;
 import service.RegisterR.RegisterRequest;
 import service.RegisterR.RegisterResult;
 
@@ -14,11 +13,15 @@ import model.UserData;
 import java.util.UUID;
 
 public class Service {
-    private final AuthDAO authDAO = new AuthDAO();
-    private final GameDAO gameDAO = new GameDAO();
-    private final UserDAO userDAO = new UserDAO();
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final UserDAO userDAO;
 
-    public Service(){}
+    public Service(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO){
+        this.userDAO = userDAO;
+        this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
+    }
 
     public RegisterResult register(RegisterRequest register){
         if (

@@ -34,7 +34,7 @@ public class Handler {
     public void clearAll(Context ctx) {
         try {
             service.clearAll();
-            ctx.status(200);
+            ctx.status(200).json(new Object());
         } catch (Exception e) {
             ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
         }
