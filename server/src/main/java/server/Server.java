@@ -4,11 +4,14 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import io.javalin.*;
-import service.ClearService;
+import service.Service;
 
 public class Server {
 
     private final Javalin javalin;
+    private final Handler handler = new Handler(new Service());
+
+
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -18,7 +21,8 @@ public class Server {
         UserDAO userDAO = new UserDAO();
 
         // Register your endpoints and exception handlers here.
-        javalin.delete("/db", new ClearHandler(new ClearService(authDAO,gameDAO,userDAO)));
+        javalin.post("/user", handler::register);
+        javalin.delete("/db", handler::clearAll);
     }
 
     public int run(int desiredPort) {

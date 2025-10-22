@@ -1,9 +1,11 @@
 package service;
 
+import dataaccess.GameDAO;
 import service.RegisterR.RegisterRequest;
 import service.RegisterR.RegisterResult;
 
 import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
 import model.AuthData;
@@ -11,14 +13,12 @@ import model.UserData;
 
 import java.util.UUID;
 
-public class UserService {
-    private final AuthDAO authDAO;
-    private final UserDAO userDAO;
+public class Service {
+    private final AuthDAO authDAO = new AuthDAO();
+    private final GameDAO gameDAO = new GameDAO();
+    private final UserDAO userDAO = new UserDAO();
 
-    public UserService(AuthDAO authDAO, UserDAO userDAO){
-        this.authDAO = authDAO;
-        this.userDAO = userDAO;
-    }
+    public Service(){}
 
     public RegisterResult register(RegisterRequest register){
         if (
@@ -41,5 +41,11 @@ public class UserService {
         authDAO.createAuth(authData);
 
         return new RegisterResult(newUser.username(), authToken);
+    }
+
+    public void clearAll(){
+        authDAO.clear();
+        gameDAO.clear();
+        userDAO.clear();
     }
 }
