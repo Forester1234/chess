@@ -133,7 +133,8 @@ public class ChessPiece {
             }
 
             //Move forward 2 if empty in front and in front 2
-            if (myPosition.getRow() == start && board.getPiece(new ChessPosition(row + dir, col)) == null && board.getPiece(new ChessPosition(row + dir + dir, col)) == null){
+            if (myPosition.getRow() == start && board.getPiece(new ChessPosition(row + dir, col)) == null
+                    && board.getPiece(new ChessPosition(row + dir + dir, col)) == null){
                 PDirections.add(new int[]{dir + dir,0});
             }
 
@@ -180,10 +181,10 @@ public class ChessPiece {
 
                     if (occupyingPiece == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
-                    } else {
-                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
-                            moves.add(new ChessMove(myPosition, newPos, null));
-                        }
+                        continue;
+                    }
+                    if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
                     }
                 }
             }
@@ -203,15 +204,13 @@ public class ChessPiece {
 
                     if (occupyingPiece == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
-                    } else {
-                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
-                            moves.add(new ChessMove(myPosition, newPos, null));
-                        }
-                        break;
+                        row += dir[0];
+                        col += dir[1];
+                        continue;
+                    } if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
                     }
-
-                    row += dir[0];
-                    col += dir[1];
+                    break;
                 }
             }
         }
@@ -230,15 +229,14 @@ public class ChessPiece {
 
                     if (occupyingPiece == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
-                    } else {
-                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
-                            moves.add(new ChessMove(myPosition, newPos, null));
-                        }
-                        break;
-                    }
 
-                    row += dir[0];
-                    col += dir[1];
+                        row += dir[0];
+                        col += dir[1];
+                        continue;
+                    } if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    break;
                 }
             }
         }
@@ -257,15 +255,14 @@ public class ChessPiece {
 
                     if (occupyingPiece == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
-                    } else {
-                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
-                            moves.add(new ChessMove(myPosition, newPos, null));
-                        }
-                        break;
+                        row += dir[0];
+                        col += dir[1];
+                        continue;
                     }
-
-                    row += dir[0];
-                    col += dir[1];
+                    if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPos, null));
+                    }
+                    break;
                 }
             }
         }
@@ -284,10 +281,8 @@ public class ChessPiece {
 
                     if (occupyingPiece == null) {
                         moves.add(new ChessMove(myPosition, newPos, null));
-                    } else {
-                        if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
+                    } else if (occupyingPiece.getTeamColor() != piece.getTeamColor()) {
                             moves.add(new ChessMove(myPosition, newPos, null));
-                        }
                     }
                 }
             }
