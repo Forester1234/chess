@@ -70,6 +70,16 @@ public class Service {
         return new LoginResult(User.username(), authToken);
     }
 
+    public void logout(String authToken) {
+
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData == null){
+            throw new IllegalStateException("Error: unauthorized");
+        }
+
+        authDAO.removeData(authToken);
+    }
+
     public void clearAll(){
         authDAO.clear();
         gameDAO.clear();
