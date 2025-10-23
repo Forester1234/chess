@@ -1,5 +1,7 @@
 package service;
 
+import service.ListR.ListRequest;
+import service.ListR.ListResult;
 import service.LoginR.LoginRequest;
 import service.LoginR.LoginResult;
 import service.RegisterR.RegisterRequest;
@@ -10,8 +12,10 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -78,6 +82,17 @@ public class Service {
         }
 
         authDAO.removeData(authToken);
+    }
+
+    public ListResult getList(ListRequest list) {
+
+        AuthData authData = authDAO.getAuth(list.authToken());
+        if (authData == null){
+            throw new IllegalStateException("Error: unauthorized");
+        }
+
+        List<GameData> games = gameDAO.getAllGames();
+        return new ListResult(games);
     }
 
     public void clearAll(){

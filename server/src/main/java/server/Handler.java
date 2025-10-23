@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
+import service.ListR.ListRequest;
 import service.RegisterR.RegisterRequest;
 import service.LoginR.LoginRequest;
 import service.Service;
@@ -54,6 +55,20 @@ public class Handler {
 
             service.logout(authToken);
             ctx.status(200).json(new Object());
+        } catch (IllegalStateException e) {
+            ctx.status(401).json(new ErrorMessage(e.getMessage()));
+
+        } catch (Exception e) {
+            ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
+        }
+    }
+
+    public void getGames(Context ctx) {
+        try {
+            String authToken = ctx.header("authorization");
+            ListRequest list = new ListRequest(authToken);
+            var result = service.getList(list);
+            ctx.status(200).json(result);
         } catch (IllegalStateException e) {
             ctx.status(401).json(new ErrorMessage(e.getMessage()));
 
