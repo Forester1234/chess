@@ -1,6 +1,7 @@
 package service;
 
 import service.LoginR.LoginRequest;
+import service.LoginR.LoginResult;
 import service.RegisterR.RegisterRequest;
 import service.RegisterR.RegisterResult;
 
@@ -11,6 +12,7 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Service {
@@ -25,8 +27,7 @@ public class Service {
     }
 
     public RegisterResult register(RegisterRequest register){
-        if (
-                register.username() == null || register.username().isEmpty() ||
+        if (register.username() == null || register.username().isEmpty() ||
                 register.password() == null || register.password().isEmpty() ||
                 register.email() == null || register.email().isEmpty()) {
             throw new IllegalArgumentException("Error: bad request");
@@ -47,7 +48,26 @@ public class Service {
         return new RegisterResult(newUser.username(), authToken);
     }
 
-    public Object login(LoginRequest login) {
+    public LoginResult login(LoginRequest login) throws IllegalAccessException {
+        if (login.username() == null || login.username().isEmpty() ||
+                login.password() == null || login.password().isEmpty()) {
+            throw new IllegalArgumentException("Error: bad request");
+        }
+
+        UserData User = userDAO.getUser(login.username());
+        if (User == null){
+            throw new IllegalStateException("Error: unauthorized");
+        }
+
+        if (!Objects.equals(User.password(), login.password())){
+            throw new IllegalStateException("Error: unauthorized");
+        }
+
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, User.username());
+        authDAO.createAuth(authData);
+
+        return new LoginResult(User.username(), authToken);
     }
 
     public void clearAll(){

@@ -38,7 +38,15 @@ public class Handler {
             LoginRequest login = gson.fromJson(ctx.body(), LoginRequest.class);
             var result = service.login(login);
             ctx.status(200).json(result);
-        } catch(){}
+        } catch (IllegalArgumentException e) {
+            ctx.status(400).json(new ErrorMessage(e.getMessage()));
+
+        }catch (IllegalStateException e) {
+            ctx.status(401).json(new ErrorMessage(e.getMessage()));
+
+        }catch (Exception e) {
+            ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
+        }
     }
 
     public void clearAll(Context ctx) {
