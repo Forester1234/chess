@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
+import org.jetbrains.annotations.NotNull;
+import service.CreateR.CreateRequest;
 import service.ListR.ListRequest;
 import service.RegisterR.RegisterRequest;
 import service.LoginR.LoginRequest;
@@ -75,6 +77,28 @@ public class Handler {
         } catch (Exception e) {
             ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
         }
+    }
+
+    public void makeGame(Context ctx) {
+        try {
+            CreateRequest create = gson.fromJson(ctx.body(), CreateRequest.class);
+            String authToken = ctx.header("authorization");
+            create = new CreateRequest(authToken, create.gameName());
+
+            var result = service.makeGame(create);
+            ctx.status(200).json(result);
+        } catch (IllegalArgumentException e) {
+            ctx.status(400).json(new ErrorMessage(e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            ctx.status(401).json(new ErrorMessage(e.getMessage()));
+
+        } catch (Exception e) {
+            ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
+        }
+    }
+
+    public void joinGame(Context ctx) {
     }
 
     public void clearAll(Context ctx) {

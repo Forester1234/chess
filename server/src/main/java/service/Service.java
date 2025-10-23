@@ -1,5 +1,7 @@
 package service;
 
+import service.CreateR.CreateRequest;
+import service.CreateR.CreateResult;
 import service.ListR.ListRequest;
 import service.ListR.ListResult;
 import service.LoginR.LoginRequest;
@@ -93,6 +95,21 @@ public class Service {
 
         List<GameData> games = gameDAO.getAllGames();
         return new ListResult(games);
+    }
+
+    public CreateResult makeGame(CreateRequest create) {
+        if (create.gameName() == null || create.gameName().isEmpty()) {
+            throw new IllegalArgumentException("Error: bad request");
+        }
+
+        AuthData authData = authDAO.getAuth(create.authToken());
+        if (authData == null){
+            throw new IllegalStateException("Error: unauthorized");
+        }
+
+        GameData newGame = gameDAO.createGame(create.gameName());
+
+        return new CreateResult(newGame.gameID());
     }
 
     public void clearAll(){
