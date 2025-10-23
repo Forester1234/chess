@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 import service.CreateR.CreateRequest;
+import service.JoinR.JoinRequest;
 import service.ListR.ListRequest;
 import service.RegisterR.RegisterRequest;
 import service.LoginR.LoginRequest;
@@ -99,6 +100,25 @@ public class Handler {
     }
 
     public void joinGame(Context ctx) {
+        try {
+            JoinRequest join = gson.fromJson(ctx.body(), JoinRequest.class);
+            String authToken = ctx.header("authorization");
+            join = new JoinRequest(authToken, join.playerColor(), join.gameID());
+
+            var result = service.joinGame(join);
+            ctx.status(200).json(result);
+        } catch (IllegalArgumentException e) {
+            ctx.status(400).json(new ErrorMessage(e.getMessage()));
+
+        } catch (IllegalAccessException e) {
+            ctx.status(401).json(new ErrorMessage(e.getMessage()));
+
+        } catch (IllegalStateException e) {
+            ctx.status(403).json(new ErrorMessage(e.getMessage()));
+
+        } catch (Exception e) {
+            ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
+        }
     }
 
     public void clearAll(Context ctx) {

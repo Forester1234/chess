@@ -9,15 +9,23 @@ import java.util.List;
 import java.util.Map;
 
 public class GameDAO {
-    private final Map<String, GameData> games = new HashMap<>();
+    private final Map<Integer, GameData> games = new HashMap<>();
 
     private int nextGameID = 1;
 
     public GameData createGame(String gameName) {
         int gameID = nextGameID++;
         GameData newGame = new GameData(gameID, null, null, gameName, new ChessGame());
-        games.put(String.valueOf(gameID), newGame);
+        games.put(gameID, newGame);
         return newGame;
+    }
+
+    public void updateGame(GameData game) {
+        games.put(game.gameID(), game);
+    }
+
+    public GameData findGame(int GameID){
+        return games.get(GameID);
     }
 
     public List<GameData> getAllGames(){

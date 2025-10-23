@@ -2,6 +2,8 @@ package service;
 
 import service.CreateR.CreateRequest;
 import service.CreateR.CreateResult;
+import service.JoinR.JoinRequest;
+import service.JoinR.JoinResult;
 import service.ListR.ListRequest;
 import service.ListR.ListResult;
 import service.LoginR.LoginRequest;
@@ -110,6 +112,42 @@ public class Service {
         GameData newGame = gameDAO.createGame(create.gameName());
 
         return new CreateResult(newGame.gameID());
+    }
+
+    public JoinResult joinGame(JoinRequest join) throws IllegalAccessException {
+        if (join.authToken() == null || join.authToken().isEmpty() ||
+                join.playerColor() == null || join.playerColor().isEmpty() ||
+                join.gameID() == 0){
+            throw new IllegalArgumentException("Error: bad request");
+        }
+
+        AuthData authData = authDAO.getAuth(join.authToken());
+        if (authData == null){
+            throw new IllegalAccessException("Error: unauthorized");
+        }
+
+        GameData game = gameDAO.findGame(join.gameID());
+
+        String username = authData.username();
+        String color = join.playerColor().toLowerCase();
+
+        if (color.equals("white")) {
+            if (game.whiteUsername() != null) {
+                throw new IllegalStateException("Error: already taken");
+            }
+            game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+        } else if (color.equals("black")) {
+            if (game.blackUsername() != null) {
+                throw new IllegalStateException("Error: already taken");
+            }
+            game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+        } else if (!color.equals("observer")) {
+            throw new IllegalArgumentException("Error: bad request");
+        }
+
+        gameDAO.updateGame(game);
+
+        return new JoinResult();
     }
 
     public void clearAll(){
