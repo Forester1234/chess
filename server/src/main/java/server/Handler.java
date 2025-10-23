@@ -2,7 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
+import org.jetbrains.annotations.NotNull;
 import service.RegisterR.RegisterRequest;
+import service.LoginR.LoginRequest;
 import service.Service;
 
 public class Handler {
@@ -29,6 +31,14 @@ public class Handler {
         } catch (Exception e) {
             ctx.status(500).json(new ErrorMessage("Error: " + e.getMessage()));
         }
+    }
+
+    public void login(Context ctx){
+        try {
+            LoginRequest login = gson.fromJson(ctx.body(), LoginRequest.class);
+            var result = service.login(login);
+            ctx.status(200).json(result);
+        } catch(){}
     }
 
     public void clearAll(Context ctx) {

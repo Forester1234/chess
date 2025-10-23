@@ -23,6 +23,7 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", handler::register);
+        javalin.post("/session", handler::login);
         javalin.delete("/db", handler::clearAll);
     }
 

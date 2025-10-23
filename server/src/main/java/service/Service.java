@@ -1,5 +1,6 @@
 package service;
 
+import service.LoginR.LoginRequest;
 import service.RegisterR.RegisterRequest;
 import service.RegisterR.RegisterResult;
 
@@ -44,6 +45,9 @@ public class Service {
         authDAO.createAuth(authData);
 
         return new RegisterResult(newUser.username(), authToken);
+    }
+
+    public Object login(LoginRequest login) {
     }
 
     public void clearAll(){
