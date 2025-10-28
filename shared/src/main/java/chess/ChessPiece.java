@@ -108,7 +108,12 @@ public class ChessPiece {
             }
             boolean promo = (row + dir == last);
 
-            ChessPiece.PieceType[] promoPiece = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.ROOK};
+            ChessPiece.PieceType[] promoPiece = {
+                    ChessPiece.PieceType.QUEEN,
+                    ChessPiece.PieceType.KNIGHT,
+                    ChessPiece.PieceType.BISHOP,
+                    ChessPiece.PieceType.ROOK
+            };
 
             //Initialize Pawn Directions Array
             List<int[]> pDirections = new ArrayList<>();
@@ -152,32 +157,26 @@ public class ChessPiece {
                 }
             }
         }
-
         /*FOR Kings --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KING) {
             simpleMove(royalDirections, piece, myPosition, moves, board, false);
         }
-
         /*FOR Queens --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.QUEEN) {
             simpleMove(royalDirections, piece, myPosition, moves, board, true);
         }
-
         /*FOR Bishops --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.BISHOP) {
             simpleMove(diagonalDirections, piece, myPosition, moves, board, true);
         }
-
         /*FOR Rooks --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.ROOK){
             simpleMove(straightDirections, piece, myPosition, moves, board, true);
         }
-
         /*FOR Knights --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KNIGHT){
             simpleMove(lDirections, piece, myPosition, moves, board, false);
         }
-
         return moves;
     }
 
