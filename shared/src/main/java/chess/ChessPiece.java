@@ -82,44 +82,14 @@ public class ChessPiece {
     }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-
         ChessPiece piece = board.getPiece(myPosition);
         List<ChessMove> moves = new ArrayList<>();
-
-        int[][] royalDirections = {
-                {1,1},
-                {1,-1},
-                {-1,1},
-                {-1,-1},
-                {1,0},
-                {0,1},
-                {-1,0},
-                {0,-1}
-        };
-        int[][] diagonalDirections = {
-                {1,1},
-                {1,-1},
-                {-1,1},
-                {-1,-1}
-        };
-        int[][] straightDirections = {
-                {1,0},
-                {0,1},
-                {-1,0},
-                {0,-1}
-        };
-        int[][] lDirections = {
-                {2,1},
-                {2,-1},
-                {-2,1},
-                {-2,-1},
-                {1,2},
-                {-1,2},
-                {1,-2},
-                {-1,-2}
-        };
-
-
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        int[][] royalDirections = {{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{0,1},{-1,0},{0,-1}};
+        int[][] diagonalDirections = {{1,1},{1,-1},{-1,1},{-1,-1}};
+        int[][] straightDirections = {{1,0},{0,1},{-1,0},{0,-1}};
+        int[][] lDirections = {{2,1},{2,-1},{-2,1},{-2,-1},{1,2},{-1,2},{1,-2},{-1,-2}};
 
         /*FOR Pawns --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.PAWN) {
@@ -136,22 +106,12 @@ public class ChessPiece {
                 start = 7;
                 last = 1;
             }
-
-            int row = myPosition.getRow();
-            int col = myPosition.getColumn();
-
             boolean promo = (row + dir == last);
 
-            ChessPiece.PieceType[] promoPiece = {
-                    ChessPiece.PieceType.QUEEN,
-                    ChessPiece.PieceType.KNIGHT,
-                    ChessPiece.PieceType.BISHOP,
-                    ChessPiece.PieceType.ROOK
-            };
+            ChessPiece.PieceType[] promoPiece = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.ROOK};
 
             //Initialize Pawn Directions Array
             List<int[]> pDirections = new ArrayList<>();
-
 
             //Move forward if empty
             if (board.getPiece(new ChessPosition(row + dir, col)) == null){
@@ -193,42 +153,30 @@ public class ChessPiece {
             }
         }
 
-
-
         /*FOR Kings --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KING) {
             simpleMove(royalDirections, piece, myPosition, moves, board, false);
         }
-
-
 
         /*FOR Queens --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.QUEEN) {
             simpleMove(royalDirections, piece, myPosition, moves, board, true);
         }
 
-
-
         /*FOR Bishops --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.BISHOP) {
             simpleMove(diagonalDirections, piece, myPosition, moves, board, true);
         }
-
-
 
         /*FOR Rooks --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.ROOK){
             simpleMove(straightDirections, piece, myPosition, moves, board, true);
         }
 
-
-
         /*FOR Knights --------------------------------------------------------------------------------------------------------*/
         if (piece.getPieceType() == PieceType.KNIGHT){
             simpleMove(lDirections, piece, myPosition, moves, board, false);
         }
-
-
 
         return moves;
     }
