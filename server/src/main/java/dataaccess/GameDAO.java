@@ -24,8 +24,8 @@ public class GameDAO {
         games.put(game.gameID(), game);
     }
 
-    public GameData findGame(int GameID){
-        return games.get(GameID);
+    public GameData findGame(int gameID){
+        return games.get(gameID);
     }
 
     public List<GameData> getAllGames(){

@@ -62,20 +62,20 @@ public class Service {
             throw new IllegalArgumentException("Error: bad request");
         }
 
-        UserData User = userDAO.getUser(login.username());
-        if (User == null){
+        UserData user = userDAO.getUser(login.username());
+        if (user == null){
             throw new IllegalStateException("Error: unauthorized");
         }
 
-        if (!Objects.equals(User.password(), login.password())){
+        if (!Objects.equals(user.password(), login.password())){
             throw new IllegalStateException("Error: unauthorized");
         }
 
         String authToken = UUID.randomUUID().toString();
-        AuthData authData = new AuthData(authToken, User.username());
+        AuthData authData = new AuthData(authToken, user.username());
         authDAO.createAuth(authData);
 
-        return new LoginResult(User.username(), authToken);
+        return new LoginResult(user.username(), authToken);
     }
 
     public void logout(String authToken) {
