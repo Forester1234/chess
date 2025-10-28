@@ -1,4 +1,4 @@
-package service.ListR;
+package service.listr;
 
 import model.GameData;
 import java.util.Collection;

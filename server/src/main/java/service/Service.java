@@ -1,15 +1,15 @@
 package service;
 
-import service.CreateR.CreateRequest;
-import service.CreateR.CreateResult;
-import service.JoinR.JoinRequest;
-import service.JoinR.JoinResult;
-import service.ListR.ListRequest;
-import service.ListR.ListResult;
-import service.LoginR.LoginRequest;
-import service.LoginR.LoginResult;
-import service.RegisterR.RegisterRequest;
-import service.RegisterR.RegisterResult;
+import service.creater.CreateRequest;
+import service.creater.CreateResult;
+import service.joinr.JoinRequest;
+import service.joinr.JoinResult;
+import service.listr.ListRequest;
+import service.listr.ListResult;
+import service.loginr.LoginRequest;
+import service.loginr.LoginResult;
+import service.registerr.RegisterRequest;
+import service.registerr.RegisterResult;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;

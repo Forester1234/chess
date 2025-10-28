@@ -1,4 +1,4 @@
-package service.JoinR;
+package service.joinr;
 
 public record JoinRequest (
         String authToken,

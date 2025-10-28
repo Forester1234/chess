@@ -1,4 +1,4 @@
-package service.RegisterR;
+package service.registerr;
 
 public record RegisterRequest(
         String username,

@@ -1,4 +1,4 @@
-package service.LoginR;
+package service.loginr;
 
 public record LoginRequest(
         String username,

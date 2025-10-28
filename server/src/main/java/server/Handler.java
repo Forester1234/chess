@@ -2,12 +2,11 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.http.Context;
-import org.jetbrains.annotations.NotNull;
-import service.CreateR.CreateRequest;
-import service.JoinR.JoinRequest;
-import service.ListR.ListRequest;
-import service.RegisterR.RegisterRequest;
-import service.LoginR.LoginRequest;
+import service.creater.CreateRequest;
+import service.joinr.JoinRequest;
+import service.listr.ListRequest;
+import service.registerr.RegisterRequest;
+import service.loginr.LoginRequest;
 import service.Service;
 
 public class Handler {

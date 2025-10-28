@@ -1,3 +1,3 @@
-package service.JoinR;
+package service.joinr;
 
 public record JoinResult (){}

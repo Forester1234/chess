@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import service.CreateR.CreateRequest;
-import service.JoinR.JoinRequest;
-import service.ListR.ListRequest;
-import service.LoginR.LoginRequest;
-import service.RegisterR.RegisterRequest;
+import service.creater.CreateRequest;
+import service.joinr.JoinRequest;
+import service.listr.ListRequest;
+import service.loginr.LoginRequest;
+import service.registerr.RegisterRequest;
 
 import java.util.ArrayList;
 
