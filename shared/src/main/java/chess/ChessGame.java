@@ -332,7 +332,7 @@ public class ChessGame {
 
                 if (piece == null) {continue;}
 
-                if (piece.getTeamColor() != teamColor) {continue:}
+                if (piece.getTeamColor() != teamColor) {continue;}
 
                 Collection<ChessMove> moves = piece.pieceMoves(board, position);
                 for (ChessMove move : moves) {
