@@ -65,7 +65,6 @@ public class ChessGame {
         ChessPosition capturedPawnPos = null;
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
-                enPassantTarget != null &&
                 end.equals(enPassantTarget) &&
                 Math.abs(end.getColumn() - start.getColumn()) == 1 &&
                 board.getPiece(end) == null) {
@@ -73,28 +72,19 @@ public class ChessGame {
             capturedPawnPos = new ChessPosition(end.getRow() + direction, end.getColumn());
             captured = board.getPiece(capturedPawnPos);
             isEnPassant = true;
-
-            if (!test) {
-                board.addPiece(capturedPawnPos, null);
-            }
+            if (!test) {board.addPiece(capturedPawnPos, null);}
         }
 
-        if (promo == null) {
-            board.addPiece(start, null);
-            board.addPiece(end, piece);
-        } else {
-            board.addPiece(start, null);
-            board.addPiece(end, new ChessPiece(piece.getTeamColor(), promo));
-        }
+        board.addPiece(start, null);
+        board.addPiece(end, promo == null ? piece : new ChessPiece(piece.getTeamColor(), promo));
+
 
         boolean check = false;
         if (test) {
             check = isInCheck(piece.getTeamColor());
-
             board.addPiece(start, piece);
             board.addPiece(end, captured);
-
-            if (isEnPassant && capturedPawnPos != null) {
+            if (isEnPassant) {
                 board.addPiece(end, null); // En passant target square was empty
                 board.addPiece(capturedPawnPos, captured);
             }
@@ -114,8 +104,6 @@ public class ChessGame {
                     if (start.equals(new ChessPosition(8,8))) {blackKingsideRookMoved = true;}
                 }
             }
-
-
 
             if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
                     Math.abs(end.getRow() - start.getRow()) == 2) {
@@ -138,27 +126,17 @@ public class ChessGame {
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.KING && !test) {
-            if (piece.getTeamColor() == TeamColor.WHITE) {
-                whiteKingMoved = true;
-                if (start.equals(new ChessPosition(1, 5)) && end.equals(new ChessPosition(1, 7))) {
-                    ChessPiece rook = board.getPiece(new ChessPosition(1, 8));
-                    board.addPiece(new ChessPosition(1, 8), null);
-                    board.addPiece(new ChessPosition(1, 6), rook);
-                } else if (start.equals(new ChessPosition(1, 5)) && end.equals(new ChessPosition(1, 3))) {
-                    ChessPiece rook = board.getPiece(new ChessPosition(1, 1));
-                    board.addPiece(new ChessPosition(1, 1), null);
-                    board.addPiece(new ChessPosition(1, 4), rook);
-                }
-            } else {
-                blackKingMoved = true;
-                if (start.equals(new ChessPosition(8, 5)) && end.equals(new ChessPosition(8, 7))) {
-                    ChessPiece rook = board.getPiece(new ChessPosition(8, 8));
-                    board.addPiece(new ChessPosition(8, 8), null);
-                    board.addPiece(new ChessPosition(8, 6), rook);
-                } else if (start.equals(new ChessPosition(8, 5)) && end.equals(new ChessPosition(8, 3))) {
-                    ChessPiece rook = board.getPiece(new ChessPosition(8, 1));
-                    board.addPiece(new ChessPosition(8, 1), null);
-                    board.addPiece(new ChessPosition(8, 4), rook);
+            boolean white = piece.getTeamColor() == TeamColor.WHITE;
+            int row = white ? 1 : 8;
+            if (start.equals(new ChessPosition(row,5))) {
+                if (end.equals(new ChessPosition(row,7))) {
+                    ChessPiece rook = board.getPiece(new ChessPosition(row,8));
+                    board.addPiece(new ChessPosition(row,8), null);
+                    board.addPiece(new ChessPosition(row,6), rook);
+                } else if (end.equals(new ChessPosition(row,3))) {
+                    ChessPiece rook = board.getPiece(new ChessPosition(row,1));
+                    board.addPiece(new ChessPosition(row,1), null);
+                    board.addPiece(new ChessPosition(row,4), rook);
                 }
             }
         }
@@ -203,49 +181,48 @@ public class ChessGame {
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            ChessPosition kingPos = startPosition;
 
             if (piece.getTeamColor() == TeamColor.WHITE &&
-                    kingPos.equals(new ChessPosition(1, 5)) &&
+                    startPosition.equals(new ChessPosition(1, 5)) &&
                     !whiteKingMoved && !isInCheck(TeamColor.WHITE)
             ) {
                 if (!whiteKingsideRookMoved &&
                         board.getPiece(new ChessPosition(1,6)) == null &&
                         board.getPiece(new ChessPosition(1,7)) == null &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(1,6), TeamColor.WHITE) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(1,7), TeamColor.WHITE)
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(1,6), TeamColor.WHITE) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(1,7), TeamColor.WHITE)
                 ) {
-                    legalMoves.add(new ChessMove(kingPos, new ChessPosition(1,7), null));
+                    legalMoves.add(new ChessMove(startPosition, new ChessPosition(1,7), null));
                 }
                 if (!whiteQueensideRookMoved &&
                         board.getPiece(new ChessPosition(1,2)) == null &&
                         board.getPiece(new ChessPosition(1,3)) == null &&
                         board.getPiece(new ChessPosition(1,4)) == null &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(1,4), TeamColor.WHITE) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(1,3), TeamColor.WHITE) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(1,2), TeamColor.WHITE)) {
-                    legalMoves.add(new ChessMove(kingPos, new ChessPosition(1,3), null));
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(1,4), TeamColor.WHITE) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(1,3), TeamColor.WHITE) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(1,2), TeamColor.WHITE)) {
+                    legalMoves.add(new ChessMove(startPosition, new ChessPosition(1,3), null));
                 }
             } else if (piece.getTeamColor() == TeamColor.BLACK &&
-                    kingPos.equals(new ChessPosition(8, 5)) &&
+                    startPosition.equals(new ChessPosition(8, 5)) &&
                     !blackKingMoved &&
                     !isInCheck(TeamColor.BLACK)
             ) {
                 if (!blackKingsideRookMoved &&
                         board.getPiece(new ChessPosition(8,6)) == null &&
                         board.getPiece(new ChessPosition(8,7)) == null &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(8,6), TeamColor.BLACK) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(8,7), TeamColor.BLACK)) {
-                    legalMoves.add(new ChessMove(kingPos, new ChessPosition(8,7), null));
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(8,6), TeamColor.BLACK) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(8,7), TeamColor.BLACK)) {
+                    legalMoves.add(new ChessMove(startPosition, new ChessPosition(8,7), null));
                 }
                 if (!blackQueensideRookMoved &&
                         board.getPiece(new ChessPosition(8,2)) == null &&
                         board.getPiece(new ChessPosition(8,3)) == null &&
                         board.getPiece(new ChessPosition(8,4)) == null &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(8,4), TeamColor.BLACK) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(8,3), TeamColor.BLACK) &&
-                        !wouldPassThroughCheck(kingPos, new ChessPosition(8,2), TeamColor.BLACK)) {
-                    legalMoves.add(new ChessMove(kingPos, new ChessPosition(8,3), null));
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(8,4), TeamColor.BLACK) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(8,3), TeamColor.BLACK) &&
+                        !wouldPassThroughCheck(startPosition, new ChessPosition(8,2), TeamColor.BLACK)) {
+                    legalMoves.add(new ChessMove(startPosition, new ChessPosition(8,3), null));
                 }
             }
         }
