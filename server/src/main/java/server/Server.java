@@ -1,8 +1,6 @@
 package server;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 import service.Service;
@@ -12,6 +10,14 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
+
+        try {
+            MySqlDataAccess.initialize();
+            System.out.println("Database initialized");
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize the database");
+        }
+
         javalin = Javalin.create(config -> {config.staticFiles.add("web");
         config.jsonMapper(new JavalinGson());});
 
