@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class SqlUserDAO implements UserDAOInterface {
 
     public void createUser(UserData user) throws DataAccessException {
-        String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO user (username, password_hash, email) VALUES (?, ?, ?)";
         try (Connection conect = DatabaseManager.getConnection();
              PreparedStatement stat = conect.prepareStatement(sql)) {
             stat.setString(1, user.username());
@@ -26,7 +26,7 @@ public class SqlUserDAO implements UserDAOInterface {
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        String sql = "SELECT username, password, email FROM user WHERE username = ?";
+        String sql = "SELECT username, password_hash, email FROM user WHERE username = ?";
         try (Connection conect = DatabaseManager.getConnection();
              PreparedStatement stat = conect.prepareStatement(sql)) {
             stat.setString(1, username);
@@ -34,7 +34,7 @@ public class SqlUserDAO implements UserDAOInterface {
                 if (resSet.next()) {
                     return new UserData(
                             resSet.getString("username"),
-                            resSet.getString("password"),
+                            resSet.getString("password_hash"),
                             resSet.getString("email")
                     );
                 } else {
