@@ -12,7 +12,7 @@ import service.loginr.LoginResult;
 import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 
-import dataaccess.memory.AuthDAO;
+import dataaccess.interfaces.AuthDAOInterface;
 import dataaccess.memory.GameDAO;
 import dataaccess.interfaces.UserDAOInterface;
 
@@ -25,11 +25,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Service {
-    private final AuthDAO authDAO;
+    private final AuthDAOInterface authDAO;
     private final GameDAO gameDAO;
     private final UserDAOInterface userDAO;
 
-    public Service(AuthDAO authDAO, GameDAO gameDAO, UserDAOInterface userDAO){
+    public Service(AuthDAOInterface authDAO, GameDAO gameDAO, UserDAOInterface userDAO){
         this.userDAO = userDAO;
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
@@ -79,7 +79,7 @@ public class Service {
         return new LoginResult(user.username(), authToken);
     }
 
-    public void logout(String authToken) {
+    public void logout(String authToken) throws DataAccessException {
 
         AuthData authData = authDAO.getAuth(authToken);
         if (authData == null){
@@ -89,7 +89,7 @@ public class Service {
         authDAO.removeData(authToken);
     }
 
-    public ListResult getList(ListRequest list) {
+    public ListResult getList(ListRequest list) throws DataAccessException {
 
         AuthData authData = authDAO.getAuth(list.authToken());
         if (authData == null){
@@ -100,7 +100,7 @@ public class Service {
         return new ListResult(games);
     }
 
-    public CreateResult makeGame(CreateRequest create) {
+    public CreateResult makeGame(CreateRequest create) throws DataAccessException {
         if (create.gameName() == null || create.gameName().isEmpty()) {
             throw new IllegalArgumentException("Error: bad request");
         }
@@ -115,7 +115,7 @@ public class Service {
         return new CreateResult(newGame.gameID());
     }
 
-    public JoinResult joinGame(JoinRequest join) throws IllegalAccessException {
+    public JoinResult joinGame(JoinRequest join) throws IllegalAccessException, DataAccessException {
         if (join.authToken() == null || join.authToken().isEmpty() ||
                 join.playerColor() == null || join.playerColor().isEmpty() ||
                 join.gameID() == 0){
