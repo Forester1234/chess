@@ -1,9 +1,9 @@
 package server;
 
 import dataaccess.*;
-import dataaccess.memory.AuthDAO;
-import dataaccess.memory.GameDAO;
-import dataaccess.memory.UserDAO;
+import dataaccess.mysql.SqlAuthDAO;
+import dataaccess.mysql.SqlGameDAO;
+import dataaccess.mysql.SqlUserDAO;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 import service.Service;
@@ -24,9 +24,9 @@ public class Server {
         javalin = Javalin.create(config -> {config.staticFiles.add("web");
         config.jsonMapper(new JavalinGson());});
 
-        AuthDAO authDAO = new AuthDAO();
-        GameDAO gameDAO = new GameDAO();
-        UserDAO userDAO = new UserDAO();
+        SqlAuthDAO authDAO = new SqlAuthDAO();
+        SqlGameDAO gameDAO = new SqlGameDAO();
+        SqlUserDAO userDAO = new SqlUserDAO();
         Service service = new Service(authDAO, gameDAO, userDAO);
         Handler handler = new Handler(service);
 

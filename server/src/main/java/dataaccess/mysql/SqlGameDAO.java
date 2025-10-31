@@ -11,7 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlGameDAO {
+public class SqlGameDAO implements GameDAOInterface {
     private final Gson gson = new Gson();
 
     public GameData createGame(String gameName) throws DataAccessException {
