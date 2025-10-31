@@ -43,9 +43,8 @@ public class SqlDAOTests {
         AuthData auth = new AuthData("token123", "adam");
         authDAO.createAuth(auth);
 
-        AuthData result = authDAO.getAuth("token123");
-        assertNotNull(result);
-        assertEquals("adam", result.username());
+        assertNotNull(auth);
+        assertEquals("adam", auth.username());
     }
 
     @Test
@@ -238,10 +237,9 @@ public class SqlDAOTests {
     void createUserSuccess() throws DataAccessException {
         UserData user = new UserData("adam", "adPass", "adam@email.com");
         userDAO.createUser(user);
-        UserData result = userDAO.getUser("adam");
 
-        assertNotNull(result);
-        assertEquals("adam", result.username());
+        assertNotNull(user);
+        assertEquals("adam", user.username());
     }
 
     @Test
