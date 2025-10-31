@@ -25,7 +25,7 @@ public class Tests {
     private UserDAO userDAO;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws DataAccessException {
 
         authDAO = new AuthDAO();
         gameDAO = new GameDAO();

@@ -21,7 +21,7 @@ public class SqlUserDAO implements UserDAOInterface {
             stat.setString(3, user.email());
             stat.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Couldn't create userdata", e);
+            throw new DataAccessException("Failed to create userdata", e);
         }
     }
 
