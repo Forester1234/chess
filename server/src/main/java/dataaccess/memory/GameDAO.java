@@ -1,6 +1,8 @@
 package dataaccess.memory;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
+import dataaccess.interfaces.GameDAOInterface;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -8,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameDAO {
+public class GameDAO implements GameDAOInterface {
     private final Map<Integer, GameData> games = new HashMap<>();
 
     private int nextGameID = 1;

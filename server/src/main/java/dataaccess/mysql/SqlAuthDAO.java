@@ -9,8 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SqlAuthDAO implements AuthDAOInterface {
     public void createAuth(AuthData authData) throws DataAccessException {
@@ -30,11 +28,11 @@ public class SqlAuthDAO implements AuthDAOInterface {
         try (Connection conect = DatabaseManager.getConnection();
              PreparedStatement stat = conect.prepareStatement(sql)) {
             stat.setString(1, authToken);
-            try (ResultSet rs = stat.executeQuery()) {
-                if (rs.next()) {
+            try (ResultSet resSet = stat.executeQuery()) {
+                if (resSet.next()) {
                     return new AuthData(
-                            rs.getString("token"),
-                            rs.getString("username")
+                            resSet.getString("token"),
+                            resSet.getString("username")
                     );
                 } else {
                     return null;

@@ -13,7 +13,7 @@ import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 
 import dataaccess.interfaces.AuthDAOInterface;
-import dataaccess.memory.GameDAO;
+import dataaccess.interfaces.GameDAOInterface;
 import dataaccess.interfaces.UserDAOInterface;
 
 import model.AuthData;
@@ -26,10 +26,10 @@ import java.util.UUID;
 
 public class Service {
     private final AuthDAOInterface authDAO;
-    private final GameDAO gameDAO;
+    private final GameDAOInterface gameDAO;
     private final UserDAOInterface userDAO;
 
-    public Service(AuthDAOInterface authDAO, GameDAO gameDAO, UserDAOInterface userDAO){
+    public Service(AuthDAOInterface authDAO, GameDAOInterface gameDAO, UserDAOInterface userDAO){
         this.userDAO = userDAO;
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
