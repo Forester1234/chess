@@ -1,13 +1,14 @@
 package service;
 
+import dataaccess.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.memory.AuthDAO;
+import dataaccess.memory.GameDAO;
+import dataaccess.memory.UserDAO;
 import service.creater.CreateRequest;
 import service.joinr.JoinRequest;
 import service.listr.ListRequest;
@@ -35,7 +36,7 @@ public class Tests {
     }
 
     @Test
-    public void testRegisterSuccess() {
+    public void testRegisterSuccess() throws DataAccessException {
         var request = new RegisterRequest("bill", "pass", "bill@email.com");
         var result = service.register(request);
         assertEquals("bill", result.username());
@@ -43,7 +44,7 @@ public class Tests {
     }
 
     @Test
-    public void registerFail() {
+    public void registerFail() throws DataAccessException {
         var request = new RegisterRequest("bill", "pass", "bill@email.com");
         service.register(request);
         assertThrows(IllegalStateException.class, () -> service.register(request));
@@ -78,7 +79,7 @@ public class Tests {
 
 
     @Test
-    public void listSuccess() {
+    public void listSuccess() throws DataAccessException {
         var reg = service.register(new RegisterRequest("bill", "pass", "bill@email.com"));
 
         service.makeGame(new CreateRequest(reg.authToken(), "Fun Game"));
@@ -103,14 +104,14 @@ public class Tests {
 
 
     @Test
-    public void createGameSuccess() {
+    public void createGameSuccess() throws DataAccessException {
         var reg = service.register(new RegisterRequest("bill", "pass", "bill@email.com"));
         var result = service.makeGame(new CreateRequest(reg.authToken(), "Fun Game"));
         assertEquals(1, result.gameID());
     }
 
     @Test
-    public void createGameFail() {
+    public void createGameFail() throws DataAccessException {
         var reg = service.register(new RegisterRequest("bill", "pass", "bill@email.com"));
         var createReg = new CreateRequest(reg.authToken(), "");
         assertThrows(IllegalArgumentException.class, () -> service.makeGame(createReg));
@@ -140,7 +141,7 @@ public class Tests {
 
 
     @Test
-    public void clearTest() {
+    public void clearTest() throws DataAccessException {
         service.register(new RegisterRequest("bill", "pass", "bill@email.com"));
         assertDoesNotThrow(() -> service.clearAll());
     }

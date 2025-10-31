@@ -1,6 +1,9 @@
 package server;
 
 import dataaccess.*;
+import dataaccess.memory.AuthDAO;
+import dataaccess.memory.GameDAO;
+import dataaccess.memory.UserDAO;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 import service.Service;

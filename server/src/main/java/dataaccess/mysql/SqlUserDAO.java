@@ -1,5 +1,7 @@
-package dataaccess;
+package dataaccess.mysql;
 
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import model.UserData;
 
 import java.sql.Connection;
@@ -7,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserDAO {
+public class SqlUserDAO {
 
     public void createUser(UserData user) throws DataAccessException {
         String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";

@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.DataAccessException;
 import service.creater.CreateRequest;
 import service.creater.CreateResult;
 import service.joinr.JoinRequest;
@@ -11,9 +12,9 @@ import service.loginr.LoginResult;
 import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.memory.AuthDAO;
+import dataaccess.memory.GameDAO;
+import dataaccess.memory.UserDAO;
 
 import model.AuthData;
 import model.GameData;
@@ -34,7 +35,7 @@ public class Service {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest register){
+    public RegisterResult register(RegisterRequest register) throws DataAccessException {
         if (register.username() == null || register.username().isEmpty() ||
                 register.password() == null || register.password().isEmpty() ||
                 register.email() == null || register.email().isEmpty()) {
