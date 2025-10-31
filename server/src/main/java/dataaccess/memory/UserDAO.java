@@ -1,11 +1,14 @@
 package dataaccess.memory;
 
+import dataaccess.DataAccessException;
+import dataaccess.interfaces.UserDAOInterface;
+import dataaccess.interfaces.UserDAOInterface;
 import model.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserDAO {
+public class UserDAO implements UserDAOInterface {
     private final Map<String, UserData> users = new HashMap<>();
 
     public void createUser(UserData user) {

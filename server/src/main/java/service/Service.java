@@ -14,7 +14,7 @@ import service.registerr.RegisterResult;
 
 import dataaccess.memory.AuthDAO;
 import dataaccess.memory.GameDAO;
-import dataaccess.memory.UserDAO;
+import dataaccess.interfaces.UserDAOInterface;
 
 import model.AuthData;
 import model.GameData;
@@ -27,9 +27,9 @@ import java.util.UUID;
 public class Service {
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
-    private final UserDAO userDAO;
+    private final UserDAOInterface userDAO;
 
-    public Service(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO){
+    public Service(AuthDAO authDAO, GameDAO gameDAO, UserDAOInterface userDAO){
         this.userDAO = userDAO;
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
@@ -57,7 +57,7 @@ public class Service {
         return new RegisterResult(newUser.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest login) throws IllegalAccessException {
+    public LoginResult login(LoginRequest login) throws IllegalAccessException, DataAccessException {
         if (login.username() == null || login.username().isEmpty() ||
                 login.password() == null || login.password().isEmpty()) {
             throw new IllegalArgumentException("Error: bad request");
@@ -151,7 +151,7 @@ public class Service {
         return new JoinResult();
     }
 
-    public void clearAll(){
+    public void clearAll() throws DataAccessException {
         authDAO.clear();
         gameDAO.clear();
         userDAO.clear();
