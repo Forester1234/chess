@@ -13,8 +13,8 @@ import java.sql.SQLException;
 public class SqlAuthDAO implements AuthDAOInterface {
     public void createAuth(AuthData authData) throws DataAccessException {
         String sql = "INSERT INTO auth (token, username) VALUES (?, ?)";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, authData.authToken());
             stat.setString(2, authData.username());
             stat.executeUpdate();
@@ -25,8 +25,8 @@ public class SqlAuthDAO implements AuthDAOInterface {
 
     public AuthData getAuth(String authToken) throws DataAccessException {
         String sql = "SELECT token, username FROM auth WHERE token = ?";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, authToken);
             try (ResultSet resSet = stat.executeQuery()) {
                 if (resSet.next()) {
@@ -44,8 +44,8 @@ public class SqlAuthDAO implements AuthDAOInterface {
 
     public void removeData(String authToken) throws DataAccessException {
         String sql = "DELETE FROM auth WHERE token = ?";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, authToken);
             stat.executeUpdate();
         } catch (SQLException e) {
@@ -55,8 +55,8 @@ public class SqlAuthDAO implements AuthDAOInterface {
 
     public void clear() throws DataAccessException {
         String sql = "DELETE FROM auth";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Failed to clear auth table", e);

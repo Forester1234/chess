@@ -16,8 +16,8 @@ public class SqlGameDAO implements GameDAOInterface {
 
     public GameData createGame(String gameName) throws DataAccessException {
         String sql = "INSERT INTO game (game_name, game_state) VALUES (?, ?)";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ChessGame newGameState = new ChessGame();
             String gameStateJson = gson.toJson(newGameState);
@@ -39,21 +39,25 @@ public class SqlGameDAO implements GameDAOInterface {
 
     public void updateGame(GameData game) throws DataAccessException {
         String sql = "UPDATE game SET white_username = ?, black_username = ?, game_state = ? WHERE game_id = ?";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, game.whiteUsername());
             stat.setString(2, game.blackUsername());
             stat.setString(3, gson.toJson(game.game()));
             stat.setInt(4, game.gameID());
-            stat.executeUpdate();
+            int rows = stat.executeUpdate();
+            if (rows == 0) {
+                throw new DataAccessException("Game with ID " + game.gameID() + " does not exist.");
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Failed to update game", e);
-        }    }
+        }
+    }
 
     public GameData findGame(int gameID) throws DataAccessException {
         String sql = "SELECT game_id, game_name, white_username, black_username, game_state FROM game WHERE game_id = ?";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setInt(1, gameID);
             try (ResultSet resSet = stat.executeQuery()) {
                 if (resSet.next()) {
@@ -71,14 +75,15 @@ public class SqlGameDAO implements GameDAOInterface {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Failed to find game", e);
-        }    }
+        }
+    }
 
     public List<GameData> getAllGames() throws DataAccessException {
         String sql = "SELECT game_id, game_name, white_username, black_username, game_state FROM game";
         List<GameData> games = new ArrayList<>();
 
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql);
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql);
              ResultSet resSet = stat.executeQuery()) {
 
             while (resSet.next()) {
@@ -99,8 +104,8 @@ public class SqlGameDAO implements GameDAOInterface {
 
     public void clear() throws DataAccessException {
         String sql = "DELETE FROM game";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Failed to clear games", e);

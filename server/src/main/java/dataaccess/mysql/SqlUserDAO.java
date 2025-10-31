@@ -14,8 +14,8 @@ public class SqlUserDAO implements UserDAOInterface {
 
     public void createUser(UserData user) throws DataAccessException {
         String sql = "INSERT INTO user (username, password_hash, email) VALUES (?, ?, ?)";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, user.username());
             stat.setString(2, user.password());
             stat.setString(3, user.email());
@@ -27,8 +27,8 @@ public class SqlUserDAO implements UserDAOInterface {
 
     public UserData getUser(String username) throws DataAccessException {
         String sql = "SELECT username, password_hash, email FROM user WHERE username = ?";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.setString(1, username);
             try (ResultSet resSet = stat.executeQuery()) {
                 if (resSet.next()) {
@@ -48,8 +48,8 @@ public class SqlUserDAO implements UserDAOInterface {
 
     public void clear() throws DataAccessException {
         String sql = "DELETE FROM user";
-        try (Connection conect = DatabaseManager.getConnection();
-             PreparedStatement stat = conect.prepareStatement(sql)) {
+        try (Connection connect = DatabaseManager.getConnection();
+             PreparedStatement stat = connect.prepareStatement(sql)) {
             stat.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Failed to clear users", e);
