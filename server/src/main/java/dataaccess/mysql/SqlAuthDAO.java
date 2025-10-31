@@ -1,6 +1,6 @@
 package dataaccess.mysql;
 
-import dataaccess.interfaces.AuthDAOInterface;
+import dataaccess.DAOInterfaces.AuthDAOInterface;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.AuthData;

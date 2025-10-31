@@ -1,8 +1,6 @@
 package dataaccess.memory;
 
-import dataaccess.DataAccessException;
-import dataaccess.interfaces.UserDAOInterface;
-import dataaccess.interfaces.UserDAOInterface;
+import dataaccess.DAOInterfaces.UserDAOInterface;
 import model.UserData;
 
 import java.util.HashMap;

@@ -1,7 +1,6 @@
 package dataaccess.memory;
 
-import dataaccess.interfaces.AuthDAOInterface;
-import dataaccess.DataAccessException;
+import dataaccess.DAOInterfaces.AuthDAOInterface;
 import model.AuthData;
 
 import java.util.HashMap;

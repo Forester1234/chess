@@ -2,7 +2,7 @@ package dataaccess.mysql;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
-import dataaccess.interfaces.UserDAOInterface;
+import dataaccess.DAOInterfaces.UserDAOInterface;
 import model.UserData;
 
 import java.sql.Connection;

@@ -12,16 +12,13 @@ import service.loginr.LoginResult;
 import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 
-import dataaccess.interfaces.AuthDAOInterface;
-import dataaccess.interfaces.GameDAOInterface;
-import dataaccess.interfaces.UserDAOInterface;
+import dataaccess.DAOInterfaces.*;
 
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.mindrot.jbcrypt.BCrypt;
