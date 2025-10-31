@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class Service {
     private final AuthDAOInterface authDAO;
     private final GameDAOInterface gameDAO;
@@ -47,7 +49,8 @@ public class Service {
             throw new IllegalStateException("Error: already taken");
         }
 
-        UserData newUser = new UserData(register.username(), register.password(), register.email());
+        String hashedPass = BCrypt.hashpw(register.password(), BCrypt.gensalt());
+        UserData newUser = new UserData(register.username(), hashedPass, register.email());
         userDAO.createUser(newUser);
 
         String authToken = UUID.randomUUID().toString();
@@ -68,7 +71,7 @@ public class Service {
             throw new IllegalStateException("Error: unauthorized");
         }
 
-        if (!Objects.equals(user.password(), login.password())){
+        if (!BCrypt.checkpw(login.password(), user.password())){
             throw new IllegalStateException("Error: unauthorized");
         }
 
