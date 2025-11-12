@@ -1,6 +1,7 @@
 package facade;
 
 import com.google.gson.Gson;
+import exception.ResponseException;
 import model.*;
 
 import service.joinr.JoinRequest;
