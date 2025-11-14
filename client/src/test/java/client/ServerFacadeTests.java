@@ -47,10 +47,22 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    // -----------------Register TESTS---------------------------------------------------------------------------------
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void registerPositive() throws Exception {
+        var result = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("adam", result.username());
+        Assertions.assertNotNull(result.authToken());
+    }
+
+    @Test
+    public void registerNegative_alreadyTaken() throws Exception {
+        facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        });
     }
 
 }

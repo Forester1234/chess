@@ -24,9 +24,22 @@ public class ResponseException extends Exception {
     }
 
     public static ResponseException fromJson(String json) {
-        var map = new Gson().fromJson(json, HashMap.class);
-        var status = Code.valueOf(map.get("status").toString());
-        String message = map.get("message").toString();
+        if (json == null || json.isEmpty()) {
+            return new ResponseException(Code.ServerError, "Empty response from server");
+        }
+        Map<String, Object> map = new Gson().fromJson(json, HashMap.class);
+        Code status = Code.ServerError;
+        if (map.containsKey("status") && map.get("status") != null) {
+            try {
+                status = Code.valueOf(map.get("status").toString());
+            } catch (IllegalArgumentException e) {
+                status = Code.ServerError;
+            }
+        }
+        String message = "Unknown error";
+        if (map.containsKey("message") && map.get("message") != null) {
+            message = map.get("message").toString();
+        }
         return new ResponseException(status, message);
     }
 

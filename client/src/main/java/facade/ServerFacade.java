@@ -17,10 +17,10 @@ public class ServerFacade {
 
     private final Gson gson = new Gson();
     private final HttpClient client = HttpClient.newHttpClient();
-    private final int serverUrl;
+    private final String serverUrl;
 
     public ServerFacade(int port) {
-        this.serverUrl = port;
+        this.serverUrl = "http://localhost:" + port;
     }
 
     // ------------------------------------------------------------------
