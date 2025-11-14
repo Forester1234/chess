@@ -2,7 +2,6 @@ package facade;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.*;
 
 import service.joinr.JoinRequest;
 import service.joinr.JoinResult;
@@ -13,75 +12,101 @@ import service.registerr.RegisterResult;
 
 import java.net.*;
 import java.net.http.*;
-import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpRequest.BodyHandlers;
 
 public class ServerFacade {
 
+    private final Gson gson = new Gson();
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String serverUrl;
+    private final int serverUrl;
 
-    public ServerFacade(String url) {
-        this.serverUrl = url;
+    public ServerFacade(int port) {
+        this.serverUrl = port;
     }
 
     // ------------------------------------------------------------------
 
-    public RegisterResult register(RegisterRequest){}
+    public RegisterResult register(RegisterRequest req) throws ResponseException {
+        return http("POST",
+                "/user",
+                req,
+                RegisterResult.class,
+                null
+        );
+    }
 
-    public LoginResult login(LoginRequest){}
+    public LoginResult login(LoginRequest req) throws ResponseException {
+        return http(
+                "POST",
+                "/session",
+                req,
+                LoginResult.class,
+                null
+        );
+    }
 
-    public JoinResult join(JoinRequest){}
+    public JoinResult join(JoinRequest req) throws ResponseException {
+        return http(
+                "PUT",
+                "/game",
+                req,
+                JoinResult.class,
+                req.authToken()
+        );
+    }
 
     // -------------helper functions-------------------------------------
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
-        var request = HttpRequest.newBuilder()
+    private <T> T http(String method, String path, Object body, Class<T> responseType, String authToken)
+            throws ResponseException {
+        HttpRequest request = buildRequest(method, path, body, authToken);
+        HttpResponse<String> response = sendRequest(request);
+        return handleResponse(response, responseType);
+    }
+
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
-            request.setHeader("Content-Type", "application/json");
+            builder.setHeader("Content-Type", "application/json");
         }
-        return request.build();
+        if (authToken != null) {
+            builder.setHeader("Authorization", authToken);
+        }
+        return builder.build();
     }
 
     private HttpRequest.BodyPublisher makeRequestBody(Object request) {
-        if (request != null) {
-            return HttpRequest.BodyPublishers.ofString(new Gson().toJson(request));
-        } else {
-            return BodyPublishers.noBody();
-        }
+        return (request != null)
+                ? HttpRequest.BodyPublishers.ofString(gson.toJson(request))
+                : HttpRequest.BodyPublishers.noBody();
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
         try {
-            return client.send(request, BodyHandlers.ofString());
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
         }
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
-        var status = response.statusCode();
+        int status = response.statusCode();
         if (!isSuccessful(status)) {
-            var body = response.body();
-            if (body != null) {
-                throw ResponseException.fromJson(body);
+            String errorJson = response.body();
+            if (errorJson != null && !errorJson.isEmpty()) {
+                throw ResponseException.fromJson(errorJson);
             }
-
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new ResponseException(
+                    ResponseException.fromHttpStatusCode(status),
+                    "Unexpected error: " + status
+            );
         }
-
-        if (responseClass != null) {
-            return new Gson().fromJson(response.body(), responseClass);
-        }
-
-        return null;
+        if (responseClass == null) return null;
+        return gson.fromJson(response.body(), responseClass);
     }
 
     private boolean isSuccessful(int status) {
-        return status / 100 == 2;
+        return status >= 200 && status < 300;
     }
-
 }
