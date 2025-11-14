@@ -48,12 +48,22 @@ public class ServerFacade {
         );
     }
 
-    public JoinResult join(JoinRequest req) throws ResponseException {
+    public void logout(String authToken) throws ResponseException {
+        http(
+                "DELETE",
+                "/session",
+                null,
+                null,
+                authToken
+        );
+    }
+
+    public ListResult listGames(ListRequest req) throws ResponseException {
         return http(
-                "PUT",
+                "GET",
                 "/game",
-                req,
-                JoinResult.class,
+                null,
+                ListResult.class,
                 req.authToken()
         );
     }
@@ -68,16 +78,15 @@ public class ServerFacade {
         );
     }
 
-    public ListResult listGames(ListRequest req) throws ResponseException {
+    public JoinResult join(JoinRequest req) throws ResponseException {
         return http(
-                "GET",
+                "PUT",
                 "/game",
-                null,
-                ListResult.class,
+                req,
+                JoinResult.class,
                 req.authToken()
         );
     }
-
     // -------------helper functions-------------------------------------
 
     private <T> T http(String method, String path, Object body, Class<T> responseType, String authToken)

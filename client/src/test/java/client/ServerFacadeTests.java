@@ -89,6 +89,51 @@ public class ServerFacadeTests {
         });
     }
 
+    // -----------------Logout TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void logoutPositive() throws Exception {
+        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        String auth = reg.authToken();
+
+        Assertions.assertDoesNotThrow(() -> facade.logout(auth));
+    }
+
+    @Test
+    public void logoutNegative_unauthorized() throws Exception {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.logout("fakeToken");
+        });
+    }
+
+    // -----------------List Games TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void listPositive() throws Exception {
+        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        String auth = reg.authToken();
+
+        facade.createGame(new CreateRequest(auth, "MyGame1"));
+        facade.createGame(new CreateRequest(auth, "MyGame2"));
+
+        var result = facade.listGames(new ListRequest(auth));
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(2, result.games().size());
+
+        var games = result.games().toArray(new GameData[0]);
+
+        Assertions.assertEquals("MyGame1", games[0].gameName());
+        Assertions.assertEquals("MyGame2", games[1].gameName());
+    }
+
+    @Test
+    public void listNegative_unauthorized() {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.listGames(new ListRequest("fakeAuthToken"));
+        });
+    }
+
     // -----------------Create TESTS---------------------------------------------------------------------------------
 
     @Test
@@ -125,34 +170,6 @@ public class ServerFacadeTests {
     public void joinNegative_unauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.join(new JoinRequest("badToken","white", 1));
-        });
-    }
-
-    // -----------------List Games TESTS---------------------------------------------------------------------------------
-
-    @Test
-    public void listPositive() throws Exception {
-        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
-        String auth = reg.authToken();
-
-        facade.createGame(new CreateRequest(auth, "MyGame1"));
-        facade.createGame(new CreateRequest(auth, "MyGame2"));
-
-        var result = facade.listGames(new ListRequest(auth));
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(2, result.games().size());
-
-        var games = result.games().toArray(new GameData[0]);
-
-        Assertions.assertEquals("MyGame1", games[0].gameName());
-        Assertions.assertEquals("MyGame2", games[1].gameName());
-    }
-
-    @Test
-    public void listNegative_unauthorized() {
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.listGames(new ListRequest("fakeAuthToken"));
         });
     }
 }
