@@ -60,9 +60,29 @@ public class ServerFacadeTests {
     @Test
     public void registerNegative_alreadyTaken() throws Exception {
         facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
         });
     }
 
+    // -----------------Login TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void loginPositive() throws Exception {
+        facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+
+        var result = facade.login(new LoginRequest("adam", "pass"));
+        Assertions.assertEquals("adam", result.username());
+        Assertions.assertNotNull(result.authToken());
+    }
+
+    @Test
+    public void loginNegative_badPass() throws Exception {
+        facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.login(new LoginRequest("adam", "wrongPass"));
+        });
+    }
 }
