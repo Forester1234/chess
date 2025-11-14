@@ -3,6 +3,8 @@ package facade;
 import com.google.gson.Gson;
 import exception.ResponseException;
 
+import service.creater.CreateRequest;
+import service.creater.CreateResult;
 import service.joinr.JoinRequest;
 import service.joinr.JoinResult;
 import service.loginr.LoginRequest;
@@ -50,6 +52,16 @@ public class ServerFacade {
                 "/game",
                 req,
                 JoinResult.class,
+                req.authToken()
+        );
+    }
+
+    public CreateResult createGame(CreateRequest req) throws ResponseException {
+        return http(
+                "POST",
+                "/game",
+                req,
+                CreateResult.class,
                 req.authToken()
         );
     }

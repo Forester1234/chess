@@ -6,6 +6,7 @@ import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import service.creater.CreateRequest;
 import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 import service.loginr.LoginRequest;
@@ -83,6 +84,26 @@ public class ServerFacadeTests {
 
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.login(new LoginRequest("adam", "wrongPass"));
+        });
+    }
+
+    // -----------------Join Game TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void joinPositive() throws Exception {
+        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        String auth = reg.authToken();
+
+        var game = facade.createGame(new CreateRequest(auth, "MyGame"));
+
+        var result = facade.join(new JoinRequest(auth, "white", game.gameID()));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void joinNegative_unauthorized() throws Exception {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.join(new JoinRequest("badToken","white", 1));
         });
     }
 }
