@@ -7,6 +7,8 @@ import service.creater.CreateRequest;
 import service.creater.CreateResult;
 import service.joinr.JoinRequest;
 import service.joinr.JoinResult;
+import service.listr.ListRequest;
+import service.listr.ListResult;
 import service.loginr.LoginRequest;
 import service.loginr.LoginResult;
 import service.registerr.RegisterRequest;
@@ -62,6 +64,16 @@ public class ServerFacade {
                 "/game",
                 req,
                 CreateResult.class,
+                req.authToken()
+        );
+    }
+
+    public ListResult listGames(ListRequest req) throws ResponseException {
+        return http(
+                "GET",
+                "/game",
+                null,
+                ListResult.class,
                 req.authToken()
         );
     }

@@ -3,10 +3,12 @@ package client;
 import facade.ServerFacade;
 import exception.ResponseException;
 
+import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
 import service.creater.CreateRequest;
+import service.listr.ListRequest;
 import service.registerr.RegisterRequest;
 import service.registerr.RegisterResult;
 import service.loginr.LoginRequest;
@@ -87,6 +89,25 @@ public class ServerFacadeTests {
         });
     }
 
+    // -----------------Create TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void createPositive() throws Exception {
+        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        String auth = reg.authToken();
+
+        var result = facade.createGame(new CreateRequest(auth, "MyGame"));
+        Assertions.assertNotNull(result);
+        Assertions.assertNotEquals(0, result.gameID());
+    }
+
+    @Test
+    public void createNegative_unauthorized() throws Exception {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.createGame(new CreateRequest("None", "MyGame"));
+        });
+    }
+
     // -----------------Join Game TESTS---------------------------------------------------------------------------------
 
     @Test
@@ -104,6 +125,34 @@ public class ServerFacadeTests {
     public void joinNegative_unauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.join(new JoinRequest("badToken","white", 1));
+        });
+    }
+
+    // -----------------List Games TESTS---------------------------------------------------------------------------------
+
+    @Test
+    public void listPositive() throws Exception {
+        var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
+        String auth = reg.authToken();
+
+        facade.createGame(new CreateRequest(auth, "MyGame1"));
+        facade.createGame(new CreateRequest(auth, "MyGame2"));
+
+        var result = facade.listGames(new ListRequest(auth));
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(2, result.games().size());
+
+        var games = result.games().toArray(new GameData[0]);
+
+        Assertions.assertEquals("MyGame1", games[0].gameName());
+        Assertions.assertEquals("MyGame2", games[1].gameName());
+    }
+
+    @Test
+    public void listNegative_unauthorized() {
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.listGames(new ListRequest("fakeAuthToken"));
         });
     }
 }
