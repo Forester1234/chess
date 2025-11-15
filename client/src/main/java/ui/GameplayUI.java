@@ -49,7 +49,7 @@ public class GameplayUI {
                     return;
                 }
                 case "resign" -> {
-                    System.out.println("Your resigned. (Phase 6)");
+                    System.out.println("You resigned. (Phase 6)");
                     return;
                 }
                 default -> System.out.println("Unknown command. Type 'help'.");
@@ -75,10 +75,10 @@ public class GameplayUI {
 
         System.out.println();
 
-        if (perspective.equals("white")) {
-            drawWhitePerspective(board);
-        } else {
+        if (perspective.equals("black")) {
             drawBlackPerspective(board);
+        } else {
+            drawWhitePerspective(board);
         }
 
         System.out.println();
@@ -98,7 +98,7 @@ public class GameplayUI {
 
     private void drawBlackPerspective(ChessBoard board) {
         printFileLetters("black");
-        for (int row = 1; row <= 1; row++) {
+        for (int row = 1; row <= 8; row++) {
             System.out.printf(" %d ", row);
             for (int col = 8; col >= 1; col--) {
                 printSquare(board, row, col);
