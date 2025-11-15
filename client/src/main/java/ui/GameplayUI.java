@@ -19,18 +19,11 @@ public class GameplayUI {
     private final GameData gameData;
     private final String perspective;
 
-    public GameplayUI(ServerFacade facade, String authToken, GameData gameData, String username) {
+    public GameplayUI(ServerFacade facade, String authToken, GameData gameData, String color) {
         this.facade = facade;
         this.authToken = authToken;
         this.gameData = gameData;
-
-        if (username.equals(gameData.whiteUsername())) {
-            this.perspective = "white";
-        } else if (username.equals(gameData.blackUsername())) {
-            this.perspective = "black";
-        } else {
-            this.perspective = "observer";
-        }
+        this.perspective = color.toLowerCase();
     }
 
     public void show() {
@@ -121,7 +114,7 @@ public class GameplayUI {
         ChessPiece piece = board.getPiece(pos);
 
         boolean lightSquare = ((row + col) % 2 == 0);
-        String bg = lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+        String bg = lightSquare ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
         
         String text = EMPTY;
         if (piece != null) {

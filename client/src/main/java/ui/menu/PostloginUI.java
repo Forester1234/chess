@@ -15,6 +15,8 @@ public class PostloginUI {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade;
     private final String authToken;
+    private List<GameData> currentGames = new ArrayList<>();
+
 
     public PostloginUI(ServerFacade facade, String authToken) {
         this.facade = facade;
@@ -80,13 +82,16 @@ public class PostloginUI {
         }
     }
     private void listGames() throws ResponseException {
-        List<GameData> games = new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
-        if (games.isEmpty()) {
+        currentGames = new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
+
+        if (currentGames.isEmpty()) {
             System.out.println("No games active.");
+            return;
         }
-        for (GameData g : games) {
+        for (int i = 0; i < currentGames.size(); i++) {
+            GameData g = currentGames.get(i);
             String status = g.whiteUsername() != null && g.blackUsername() != null ? "In progress" : "Waiting";
-            System.out.printf("%d: %s [%s]%n", g.gameID(), g.gameName(), status);
+            System.out.printf("%d: %s [%s]%n", i + 1, g.gameName(), status);
         }
     }
 
@@ -100,27 +105,23 @@ public class PostloginUI {
         }
     }
     private void playGame() throws ResponseException {
-        System.out.print("Enter game ID to join: ");
-        int gameId = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter game number to join: ");
+        int index = Integer.parseInt(scanner.nextLine()) - 1;
+
+        if (index < 0 || index >= currentGames.size()) {
+            System.out.println("Invalid game number.");
+            return;
+        }
+
+        GameData gameData = currentGames.get(index);
+
         System.out.print("Choose color (white/black): ");
         String color = scanner.nextLine();
 
-        facade.join(new JoinGameRequest(authToken, color, gameId));
-        System.out.println("Joined game " + gameId + " as " + color);
+        facade.join(new JoinGameRequest(authToken, color, gameData.gameID()));
+        System.out.println("Joined game " + gameData.gameID() + " as " + color);
 
-        List<GameData> games =
-                new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
-
-        GameData gameData = games.stream()
-                .filter(g -> g.gameID() == gameId)
-                .findFirst()
-                .orElseThrow(() -> new ResponseException(ResponseException.Code.ClientError, "Game not found after join"));
-
-        String username = color.equalsIgnoreCase("white")
-                ? gameData.whiteUsername()
-                : gameData.blackUsername();
-
-        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, username);
+        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, color);
         gameplay.show();
     }
 
@@ -130,21 +131,19 @@ public class PostloginUI {
         } catch (ResponseException e) {
             System.out.println("Could not observe game: " + e.getMessage());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid game ID. Must be a number.");
+            System.out.println("Invalid game. Must be a number.");
         }
     }
     private void observeGame() throws ResponseException {
-        System.out.print("Enter game ID to watch: ");
-        int gameId = Integer.parseInt(scanner.nextLine());
+        System.out.print("Enter game number to watch: ");
+        int index = Integer.parseInt(scanner.nextLine()) - 1;
 
-        List<GameData> games =
-                new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
+        if (index < 0 || index >= currentGames.size()) {
+            System.out.println("Invalid game number.");
+            return;
+        }
 
-        GameData gameData = games.stream()
-                .filter(g -> g.gameID() == gameId)
-                .findFirst()
-                .orElseThrow(() -> new ResponseException(ResponseException.Code.ClientError, "Game not found"));
-
+        GameData gameData = currentGames.get(index);
         GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, "observer");
         gameplay.show();
     }
