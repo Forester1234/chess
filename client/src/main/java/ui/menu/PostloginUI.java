@@ -1,4 +1,4 @@
-package ui;
+package ui.menu;
 
 import exception.ResponseException;
 import facade.ServerFacade;
