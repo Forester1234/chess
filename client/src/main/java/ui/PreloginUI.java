@@ -10,7 +10,7 @@ public class PreloginUI {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade;
 
-    public PreLoginUI(ServerFacade facade) {
+    public PreloginUI(ServerFacade facade) {
         this.facade = facade;
     }
 

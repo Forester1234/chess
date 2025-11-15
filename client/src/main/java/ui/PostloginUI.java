@@ -11,7 +11,7 @@ public class PostloginUI {
     private final ServerFacade facade;
     private final String authToken;
 
-    public PostLoginUI(ServerFacade facade, String authToken) {
+    public PostloginUI(ServerFacade facade, String authToken) {
         this.facade = facade;
         this.authToken = authToken;
     }
