@@ -39,11 +39,4 @@ public class ChessClient {
             e.printStackTrace();
         }
     }
-
-    public static void main(String[] args) {
-        int port = 8080;
-        ServerFacade facade = new ServerFacade(port);
-        ChessClient client = new ChessClient(facade);
-        client.run();
-    }
 }
