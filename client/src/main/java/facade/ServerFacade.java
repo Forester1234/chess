@@ -2,17 +2,9 @@ package facade;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import requests.*;
+import results.*;
 
-import service.creater.CreateRequest;
-import service.creater.CreateResult;
-import service.joinr.JoinRequest;
-import service.joinr.JoinResult;
-import service.listr.ListRequest;
-import service.listr.ListResult;
-import service.loginr.LoginRequest;
-import service.loginr.LoginResult;
-import service.registerr.RegisterRequest;
-import service.registerr.RegisterResult;
 
 import java.net.*;
 import java.net.http.*;
@@ -58,32 +50,32 @@ public class ServerFacade {
         );
     }
 
-    public ListResult listGames(ListRequest req) throws ResponseException {
+    public ListGamesResult listGames(ListGamesRequest req) throws ResponseException {
         return http(
                 "GET",
                 "/game",
                 null,
-                ListResult.class,
+                ListGamesResult.class,
                 req.authToken()
         );
     }
 
-    public CreateResult createGame(CreateRequest req) throws ResponseException {
+    public CreateGameResult createGame(CreateGameRequest req) throws ResponseException {
         return http(
                 "POST",
                 "/game",
                 req,
-                CreateResult.class,
+                CreateGameResult.class,
                 req.authToken()
         );
     }
 
-    public JoinResult join(JoinRequest req) throws ResponseException {
+    public JoinGameResult join(JoinGameRequest req) throws ResponseException {
         return http(
                 "PUT",
                 "/game",
                 req,
-                JoinResult.class,
+                JoinGameResult.class,
                 req.authToken()
         );
     }

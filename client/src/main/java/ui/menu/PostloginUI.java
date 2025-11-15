@@ -3,9 +3,7 @@ package ui.menu;
 import exception.ResponseException;
 import facade.ServerFacade;
 import model.GameData;
-import service.creater.CreateRequest;
-import service.joinr.JoinRequest;
-import service.listr.ListRequest;
+import requests.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class PostloginUI {
     }
 
     private void listGames() throws ResponseException {
-        List<GameData> games = new ArrayList<>(facade.listGames(new ListRequest(authToken)).games());
+        List<GameData> games = new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
         if (games.isEmpty()) {
             System.out.println("No games active.");
         }
@@ -57,7 +55,7 @@ public class PostloginUI {
     private void createGame() throws ResponseException {
         System.out.print("Enter game name: ");
         String name = scanner.nextLine();
-        facade.createGame(new CreateRequest(authToken, name));
+        facade.createGame(new CreateGameRequest(authToken, name));
         System.out.println("Game created!");
     }
 
@@ -67,7 +65,7 @@ public class PostloginUI {
         int gameId = Integer.parseInt(scanner.nextLine());
         System.out.print("Choose color (white/black): ");
         String color = scanner.nextLine();
-        facade.join(new JoinRequest(authToken, color, gameId));
+        facade.join(new JoinGameRequest(authToken, color, gameId));
         System.out.println("Joined game " + gameId + " as " + color);
     }
 }

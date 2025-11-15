@@ -2,8 +2,7 @@ package ui.menu;
 
 import exception.ResponseException;
 import facade.ServerFacade;
-import service.loginr.LoginRequest;
-import service.registerr.RegisterRequest;
+import requests.*;
 
 import java.util.Scanner;
 
