@@ -17,12 +17,25 @@ public class PreloginUI {
     }
 
     public String show() throws ResponseException {
-        System.out.println("\n--- Main Menu ---");
-        System.out.println("1: Register");
-        System.out.println("2: Login");
-        System.out.println("0: Exit");
+        while (true) {
+        System.out.println("\n----- Main Menu -----");
+        System.out.println("1| Register");
+        System.out.println("2| Login");
+        System.out.println("0| Exit");
         System.out.print("> ");
-        return scanner.nextLine();
+        switch (scanner.nextLine()) {
+            case "1" -> handleRegister();
+            case "2" -> {
+                String authToken = handleLogin();
+                if (authToken != null) return authToken;
+            }
+            case "0" -> {
+                System.out.println("Exiting...");
+                return null;
+            }
+            default -> System.out.println("Invalid option.");
+        }
+        }
     }
 
     public void handleRegister() throws ResponseException {

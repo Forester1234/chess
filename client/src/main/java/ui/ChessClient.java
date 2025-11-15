@@ -17,18 +17,7 @@ public class ChessClient {
 
             // Pre-login loop
             PreloginUI preLogin = new PreloginUI(facade);
-            while (authToken == null) {
-                String choice = preLogin.show();
-                switch (choice) {
-                    case "1" -> preLogin.handleRegister();
-                    case "2" -> authToken = preLogin.handleLogin();
-                    case "0" -> {
-                        System.out.println("Exiting...");
-                        return;
-                    }
-                    default -> System.out.println("Invalid option.");
-                }
-            }
+            authToken = preLogin.show();
 
             // Post-login loop
             PostloginUI postLogin = new PostloginUI(facade, authToken);
