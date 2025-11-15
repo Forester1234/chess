@@ -26,7 +26,7 @@ public class PreloginUI {
             case "1" -> handleRegister();
             case "2" -> {
                 String authToken = handleLogin();
-                if (authToken != null) return authToken;
+                if (authToken != null) {return authToken;}
             }
             case "0" -> {
                 System.out.println("Exiting...");

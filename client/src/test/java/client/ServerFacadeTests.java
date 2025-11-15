@@ -56,7 +56,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void registerNegative_alreadyTaken() throws Exception {
+    public void registerNegativeAlreadyTaken() throws Exception {
         facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
 
         Assertions.assertThrows(ResponseException.class, () -> {
@@ -76,7 +76,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void loginNegative_badPass() throws Exception {
+    public void loginNegativeBadPass() throws Exception {
         facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
 
         Assertions.assertThrows(ResponseException.class, () -> {
@@ -95,7 +95,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void logoutNegative_unauthorized() throws Exception {
+    public void logoutNegativeUnauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.logout("fakeToken");
         });
@@ -123,7 +123,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listNegative_unauthorized() {
+    public void listNegativeUnauthorized() {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.listGames(new ListGamesRequest("fakeAuthToken"));
         });
@@ -142,7 +142,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void createNegative_unauthorized() throws Exception {
+    public void createNegativeUnauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.createGame(new CreateGameRequest("None", "MyGame"));
         });
@@ -162,7 +162,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void joinNegative_unauthorized() throws Exception {
+    public void joinNegativeUnauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.join(new JoinGameRequest("badToken","white", 1));
         });

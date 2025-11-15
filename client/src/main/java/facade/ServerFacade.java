@@ -127,7 +127,7 @@ public class ServerFacade {
                     "Unexpected error: " + status
             );
         }
-        if (responseClass == null) return null;
+        if (responseClass == null) {return null;}
         return gson.fromJson(response.body(), responseClass);
     }
 
