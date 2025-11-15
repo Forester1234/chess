@@ -16,36 +16,46 @@ public class PreloginUI {
     }
 
     public String show() throws ResponseException {
+
+        System.out.println("Welcome to chess. Type Help to get started.");
         while (true) {
-        System.out.println("\n----- Main Menu -----");
-        System.out.println("1| Register");
-        System.out.println("2| Login");
-        System.out.println("0| Exit");
-        System.out.print("> ");
-        switch (scanner.nextLine()) {
-            case "1" -> handleRegister();
-            case "2" -> {
-                String authToken = handleLogin();
-                if (authToken != null) {return authToken;}
+            System.out.print("> ");
+            switch (scanner.nextLine()) {
+                case "Help" -> help();
+                case "1" -> {
+                    String authToken = handleRegister();
+                    if (authToken != null) {return authToken;}
+                }
+                case "2" -> {
+                    String authToken = handleLogin();
+                    if (authToken != null) {return authToken;}
+                }
+                case "0" -> {
+                    System.out.println("Exiting...");
+                    return null;
+                }
+                default -> System.out.println("Invalid option.");
             }
-            case "0" -> {
-                System.out.println("Exiting...");
-                return null;
-            }
-            default -> System.out.println("Invalid option.");
-        }
         }
     }
 
-    public void handleRegister() throws ResponseException {
+    public void help() {
+        System.out.println("Help| Shows possible commands");
+        System.out.println("1| Registers an account");
+        System.out.println("2| Login with an existing account");
+        System.out.println("0| Quits program");
+    }
+
+    public String handleRegister() throws ResponseException {
         System.out.print("Username: ");
         String user = scanner.nextLine();
         System.out.print("Password: ");
         String pass = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
-        facade.register(new RegisterRequest(user, pass, email));
+        String authToken = facade.register(new RegisterRequest(user, pass, email)).authToken();
         System.out.println("Registered successfully!");
+        return authToken;
     }
 
     public String handleLogin() throws ResponseException {

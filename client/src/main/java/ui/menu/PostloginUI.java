@@ -21,24 +21,38 @@ public class PostloginUI {
     }
 
     public void show() throws ResponseException {
+        System.out.println("Logged in. Enter Help to continue");
         while (true) {
-            System.out.println("\n----- Game Menu -----");
-            System.out.println("1| List games");
-            System.out.println("2| Create game");
-            System.out.println("3| Join game");
-            System.out.println("4| Logout");
             System.out.print("> ");
             switch (scanner.nextLine()) {
-                case "1" -> listGames();
-                case "2" -> createGame();
-                case "3" -> joinGame();
-                case "4" -> {
+                case "Help" -> help();
+                case "1" -> {
                     facade.logout(authToken);
                     return;
                 }
+                case "2" -> createGame();
+                case "3" -> listGames();
+                case "4" -> playGame();
+                case "5" -> observeGame();
                 default -> System.out.println("Invalid option");
             }
         }
+    }
+
+    private void help() {
+        System.out.println("Help| Shows possible commands");
+        System.out.println("1| Logs out");
+        System.out.println("2| Creates a game");
+        System.out.println("3| Lists all current games");
+        System.out.println("4| Joins a game");
+        System.out.println("5| Watches a game");
+    }
+
+    private void createGame() throws ResponseException {
+        System.out.print("Enter game name: ");
+        String name = scanner.nextLine();
+        facade.createGame(new CreateGameRequest(authToken, name));
+        System.out.println("Game created!");
     }
 
     private void listGames() throws ResponseException {
@@ -52,14 +66,7 @@ public class PostloginUI {
         }
     }
 
-    private void createGame() throws ResponseException {
-        System.out.print("Enter game name: ");
-        String name = scanner.nextLine();
-        facade.createGame(new CreateGameRequest(authToken, name));
-        System.out.println("Game created!");
-    }
-
-    private void joinGame() throws ResponseException {
+    private void playGame() throws ResponseException {
         listGames();
         System.out.print("Enter game ID to join: ");
         int gameId = Integer.parseInt(scanner.nextLine());
@@ -67,5 +74,8 @@ public class PostloginUI {
         String color = scanner.nextLine();
         facade.join(new JoinGameRequest(authToken, color, gameId));
         System.out.println("Joined game " + gameId + " as " + color);
+    }
+
+    private void observeGame() {
     }
 }
