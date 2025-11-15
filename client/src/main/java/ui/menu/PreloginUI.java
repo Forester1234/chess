@@ -26,10 +26,10 @@ public class PreloginUI {
                     help();
                 } else if (input.equals("1")) {
                     String authToken = handleRegisterSafe();
-                    if (authToken != null) return authToken;
+                    if (authToken != null) {return authToken;}
                 } else if (input.equals("2")) {
                     String authToken = handleLoginSafe();
-                    if (authToken != null) return authToken;
+                    if (authToken != null) {return authToken;}
                 } else if (input.equals("0")) {
                     System.out.println("Exiting...");
                     return null;
