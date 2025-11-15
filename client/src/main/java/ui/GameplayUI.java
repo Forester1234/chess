@@ -28,7 +28,7 @@ public class GameplayUI {
 
     public void show() {
         System.out.println("\nEntering game: " + gameData.gameName());
-        System.out.println("Type 'help' for options.\n");
+        System.out.println("Type 'Help' for options.\n");
 
         drawBoard();
 
@@ -36,7 +36,7 @@ public class GameplayUI {
             System.out.print("\n(game)>");
 
             switch (scanner.nextLine().trim().toLowerCase()) {
-                case "help" -> printHelp();
+                case "Help" -> printHelp();
                 case "leave" -> {
                     System.out.println("Leaving game...");
                     return;
@@ -53,7 +53,7 @@ public class GameplayUI {
     private void printHelp() {
         System.out.println("""
                 Commands:
-                    help   - show this menu
+                    Help   - show this menu
                     leave  - return to menu
                     resign - resign the game
                     

@@ -91,7 +91,9 @@ public class PostloginUI {
         for (int i = 0; i < currentGames.size(); i++) {
             GameData g = currentGames.get(i);
             String status = g.whiteUsername() != null && g.blackUsername() != null ? "In progress" : "Waiting";
-            System.out.printf("%d: %s [%s]%n", i + 1, g.gameName(), status);
+            String white = g.whiteUsername() != null ? g.whiteUsername() : "None";
+            String black = g.blackUsername() != null ? g.blackUsername() : "None";
+            System.out.printf("%d: %s [%s] | White: %s | Black: %s%n", i + 1, g.gameName(), status, white, black);
         }
     }
 
