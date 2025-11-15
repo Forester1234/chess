@@ -22,29 +22,22 @@ public class PreloginUI {
             System.out.print("> ");
             String input = scanner.nextLine();
             try {
-                switch (input) {
-                    case "Help" -> help();
-                    case "1" -> {
-                        String authToken = handleRegisterSafe();
-                        if (authToken != null) {
-                            return authToken;
-                        }
-                    }
-                    case "2" -> {
-                        String authToken = handleLoginSafe();
-                        if (authToken != null) {
-                            return authToken;
-                        }
-                    }
-                    case "0" -> {
-                        System.out.println("Exiting...");
-                        return null;
-                    }
-                    case "X" -> {
-                        facade.clear();
-                        return null;
-                    }
-                    default -> System.out.println("Invalid option.");
+                if (input.equals("Help")) {
+                    help();
+                } else if (input.equals("1")) {
+                    String authToken = handleRegisterSafe();
+                    if (authToken != null) return authToken;
+                } else if (input.equals("2")) {
+                    String authToken = handleLoginSafe();
+                    if (authToken != null) return authToken;
+                } else if (input.equals("0")) {
+                    System.out.println("Exiting...");
+                    return null;
+                } else if (input.equals("X")) {
+                    facade.clear();
+                    return null;
+                } else {
+                    System.out.println("Invalid option.");
                 }
             } catch (Exception e) {
                 System.out.println("Unexpected error: " + e.getMessage());
