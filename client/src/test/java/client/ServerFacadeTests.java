@@ -7,14 +7,9 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
 
-import service.creater.CreateRequest;
-import service.listr.ListRequest;
-import service.registerr.RegisterRequest;
-import service.registerr.RegisterResult;
-import service.loginr.LoginRequest;
-import service.loginr.LoginResult;
-import service.joinr.JoinRequest;
-import service.joinr.JoinResult;
+
+import requests.*;
+import results.*;
 
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -113,10 +108,10 @@ public class ServerFacadeTests {
         var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
         String auth = reg.authToken();
 
-        facade.createGame(new CreateRequest(auth, "MyGame1"));
-        facade.createGame(new CreateRequest(auth, "MyGame2"));
+        facade.createGame(new CreateGameRequest(auth, "MyGame1"));
+        facade.createGame(new CreateGameRequest(auth, "MyGame2"));
 
-        var result = facade.listGames(new ListRequest(auth));
+        var result = facade.listGames(new ListGamesRequest(auth));
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(2, result.games().size());
@@ -130,7 +125,7 @@ public class ServerFacadeTests {
     @Test
     public void listNegative_unauthorized() {
         Assertions.assertThrows(ResponseException.class, () -> {
-            facade.listGames(new ListRequest("fakeAuthToken"));
+            facade.listGames(new ListGamesRequest("fakeAuthToken"));
         });
     }
 
@@ -141,7 +136,7 @@ public class ServerFacadeTests {
         var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
         String auth = reg.authToken();
 
-        var result = facade.createGame(new CreateRequest(auth, "MyGame"));
+        var result = facade.createGame(new CreateGameRequest(auth, "MyGame"));
         Assertions.assertNotNull(result);
         Assertions.assertNotEquals(0, result.gameID());
     }
@@ -149,7 +144,7 @@ public class ServerFacadeTests {
     @Test
     public void createNegative_unauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
-            facade.createGame(new CreateRequest("None", "MyGame"));
+            facade.createGame(new CreateGameRequest("None", "MyGame"));
         });
     }
 
@@ -160,16 +155,16 @@ public class ServerFacadeTests {
         var reg = facade.register(new RegisterRequest("adam", "pass", "adam@byu.edu"));
         String auth = reg.authToken();
 
-        var game = facade.createGame(new CreateRequest(auth, "MyGame"));
+        var game = facade.createGame(new CreateGameRequest(auth, "MyGame"));
 
-        var result = facade.join(new JoinRequest(auth, "white", game.gameID()));
+        var result = facade.join(new JoinGameRequest(auth, "white", game.gameID()));
         Assertions.assertNotNull(result);
     }
 
     @Test
     public void joinNegative_unauthorized() throws Exception {
         Assertions.assertThrows(ResponseException.class, () -> {
-            facade.join(new JoinRequest("badToken","white", 1));
+            facade.join(new JoinGameRequest("badToken","white", 1));
         });
     }
 }
