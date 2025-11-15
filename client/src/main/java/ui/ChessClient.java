@@ -2,12 +2,10 @@ package ui;
 
 import exception.ResponseException;
 import facade.ServerFacade;
-import ui.PreloginUI;
-import ui.PostloginUI;
 
 public class ChessClient {
 
-    private ServerFacade facade;
+    private final ServerFacade facade;
 
     public ChessClient(ServerFacade facade) {
         this.facade = facade;
@@ -42,7 +40,6 @@ public class ChessClient {
             System.err.println("Server error: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
