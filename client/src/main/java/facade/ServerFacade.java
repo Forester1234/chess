@@ -79,6 +79,16 @@ public class ServerFacade {
                 req.authToken()
         );
     }
+
+    public void clear() throws ResponseException {
+        http(
+                "DELETE",
+                "/db",
+                null,
+                null,
+                null
+        );
+    }
     // -------------helper functions-------------------------------------
 
     private <T> T http(String method, String path, Object body, Class<T> responseType, String authToken)

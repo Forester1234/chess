@@ -20,7 +20,7 @@ public class ResponseException extends Exception {
     }
 
     public String toJson() {
-        return new Gson().toJson(Map.of("message", getMessage(), "status", code));
+        return new Gson().toJson(Map.of("message", getMessage(), "status", code.toString()));
     }
 
     public static ResponseException fromJson(String json) {
@@ -28,26 +28,26 @@ public class ResponseException extends Exception {
             return new ResponseException(Code.ServerError, "Empty response from server");
         }
         Map<String, Object> map = new Gson().fromJson(json, HashMap.class);
-        Code status = Code.ServerError;
+        Code status = Code.ClientError;
         if (map.containsKey("status") && map.get("status") != null) {
             try {
                 status = Code.valueOf(map.get("status").toString());
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException ignored) {
                 status = Code.ServerError;
             }
         }
-        String message = "Unknown error";
-        if (map.containsKey("message") && map.get("message") != null) {
-            message = map.get("message").toString();
-        }
+        String message = map.getOrDefault("message", "Unknown error").toString();
+
         return new ResponseException(status, message);
     }
 
     public static Code fromHttpStatusCode(int httpStatusCode) {
-        return switch (httpStatusCode) {
-            case 500 -> Code.ServerError;
-            case 400 -> Code.ClientError;
-            default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
-        };
+        if (httpStatusCode >= 400 && httpStatusCode < 500) {
+            return Code.ClientError;
+        }
+        if (httpStatusCode >= 500) {
+            return Code.ServerError;
+        }
+        return Code.ServerError;
     }
 }

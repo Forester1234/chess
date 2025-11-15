@@ -34,6 +34,10 @@ public class PreloginUI {
                     System.out.println("Exiting...");
                     return null;
                 }
+                case "X" -> {
+                    facade.clear();
+                    return null;
+                }
                 default -> System.out.println("Invalid option.");
             }
         }
@@ -44,6 +48,7 @@ public class PreloginUI {
         System.out.println("1| Registers an account");
         System.out.println("2| Login with an existing account");
         System.out.println("0| Quits program");
+        System.out.println("X| Clears everything");
     }
 
     public String handleRegister() throws ResponseException {

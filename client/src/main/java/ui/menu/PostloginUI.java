@@ -4,6 +4,7 @@ import exception.ResponseException;
 import facade.ServerFacade;
 import model.GameData;
 import requests.*;
+import ui.GameplayUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,13 +72,39 @@ public class PostloginUI {
         int gameId = Integer.parseInt(scanner.nextLine());
         System.out.print("Choose color (white/black): ");
         String color = scanner.nextLine();
+
         facade.join(new JoinGameRequest(authToken, color, gameId));
         System.out.println("Joined game " + gameId + " as " + color);
+
+        List<GameData> games =
+                new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
+
+        GameData gameData = games.stream()
+                .filter(g -> g.gameID() == gameId)
+                .findFirst()
+                .orElseThrow(() -> new ResponseException(ResponseException.Code.ClientError, "Game not found after join"));
+
+        String username = color.equalsIgnoreCase("white")
+                ? gameData.whiteUsername()
+                : gameData.blackUsername();
+
+        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, username);
+        gameplay.show();
     }
 
     private void observeGame() throws ResponseException {
         System.out.print("Enter game ID to watch: ");
         int gameId = Integer.parseInt(scanner.nextLine());
-        facade.join(new JoinGameRequest(authToken, "observer", gameId));
+
+        List<GameData> games =
+                new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
+
+        GameData gameData = games.stream()
+                .filter(g -> g.gameID() == gameId)
+                .findFirst()
+                .orElseThrow(() -> new ResponseException(ResponseException.Code.ClientError, "Game not found"));
+
+        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, "observer");
+        gameplay.show();
     }
 }
