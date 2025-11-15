@@ -110,8 +110,10 @@ public class ServerFacade {
     private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
         try {
             return client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    e.getMessage() != null ? e.getMessage() : "Unknown client error");
         }
     }
 

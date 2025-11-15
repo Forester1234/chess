@@ -67,7 +67,6 @@ public class PostloginUI {
     }
 
     private void playGame() throws ResponseException {
-        listGames();
         System.out.print("Enter game ID to join: ");
         int gameId = Integer.parseInt(scanner.nextLine());
         System.out.print("Choose color (white/black): ");
@@ -76,6 +75,9 @@ public class PostloginUI {
         System.out.println("Joined game " + gameId + " as " + color);
     }
 
-    private void observeGame() {
+    private void observeGame() throws ResponseException {
+        System.out.print("Enter game ID to watch: ");
+        int gameId = Integer.parseInt(scanner.nextLine());
+        facade.join(new JoinGameRequest(authToken, "observer", gameId));
     }
 }

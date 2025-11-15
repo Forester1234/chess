@@ -33,8 +33,10 @@ public class ChessClient {
 
         } catch (ResponseException e) {
             System.err.println("Server error: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
