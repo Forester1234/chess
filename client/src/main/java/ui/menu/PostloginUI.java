@@ -25,17 +25,26 @@ public class PostloginUI {
         System.out.println("Logged in. Enter Help to continue");
         while (true) {
             System.out.print("> ");
-            switch (scanner.nextLine()) {
-                case "Help" -> help();
-                case "1" -> {
-                    facade.logout(authToken);
-                    return;
+            String input =scanner.nextLine();
+            try {
+                switch (input) {
+                    case "Help" -> help();
+                    case "1" -> {
+                        facade.logout(authToken);
+                        return;
+                    }
+                    case "2" -> createGameSafe();
+                    case "3" -> listGamesSafe();
+                    case "4" -> playGameSafe();
+                    case "5" -> observeGameSafe();
+                    default -> System.out.println("Invalid option");
                 }
-                case "2" -> createGame();
-                case "3" -> listGames();
-                case "4" -> playGame();
-                case "5" -> observeGame();
-                default -> System.out.println("Invalid option");
+            } catch (ResponseException e) {
+                System.out.println("Server error: " + e.getMessage());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format. Please try again.");
+            } catch (Exception e) {
+                System.out.println("Unexpected error: " + e.getMessage());
             }
         }
     }
@@ -49,6 +58,13 @@ public class PostloginUI {
         System.out.println("5| Watches a game");
     }
 
+    private void createGameSafe() {
+        try {
+            createGame();
+        } catch (ResponseException e) {
+            System.out.println("Could not create game: " + e.getMessage());
+        }
+    }
     private void createGame() throws ResponseException {
         System.out.print("Enter game name: ");
         String name = scanner.nextLine();
@@ -56,6 +72,13 @@ public class PostloginUI {
         System.out.println("Game created!");
     }
 
+    private void listGamesSafe() {
+        try {
+            listGames();
+        } catch (ResponseException e) {
+            System.out.println("Could not list games: " + e.getMessage());
+        }
+    }
     private void listGames() throws ResponseException {
         List<GameData> games = new ArrayList<>(facade.listGames(new ListGamesRequest(authToken)).games());
         if (games.isEmpty()) {
@@ -67,6 +90,15 @@ public class PostloginUI {
         }
     }
 
+    private void playGameSafe() {
+        try {
+            playGame();
+        } catch (ResponseException e) {
+            System.out.println("Could not join game: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid game ID. Must be a number.");
+        }
+    }
     private void playGame() throws ResponseException {
         System.out.print("Enter game ID to join: ");
         int gameId = Integer.parseInt(scanner.nextLine());
@@ -92,6 +124,15 @@ public class PostloginUI {
         gameplay.show();
     }
 
+    private void observeGameSafe() {
+        try {
+            observeGame();
+        } catch (ResponseException e) {
+            System.out.println("Could not observe game: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid game ID. Must be a number.");
+        }
+    }
     private void observeGame() throws ResponseException {
         System.out.print("Enter game ID to watch: ");
         int gameId = Integer.parseInt(scanner.nextLine());

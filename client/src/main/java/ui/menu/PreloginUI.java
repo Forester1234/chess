@@ -20,25 +20,34 @@ public class PreloginUI {
         System.out.println("Welcome to chess. Type Help to get started.");
         while (true) {
             System.out.print("> ");
-            switch (scanner.nextLine()) {
-                case "Help" -> help();
-                case "1" -> {
-                    String authToken = handleRegister();
-                    if (authToken != null) {return authToken;}
+            String input = scanner.nextLine();
+            try {
+                switch (input) {
+                    case "Help" -> help();
+                    case "1" -> {
+                        String authToken = handleRegisterSafe();
+                        if (authToken != null) {
+                            return authToken;
+                        }
+                    }
+                    case "2" -> {
+                        String authToken = handleLoginSafe();
+                        if (authToken != null) {
+                            return authToken;
+                        }
+                    }
+                    case "0" -> {
+                        System.out.println("Exiting...");
+                        return null;
+                    }
+                    case "X" -> {
+                        facade.clear();
+                        return null;
+                    }
+                    default -> System.out.println("Invalid option.");
                 }
-                case "2" -> {
-                    String authToken = handleLogin();
-                    if (authToken != null) {return authToken;}
-                }
-                case "0" -> {
-                    System.out.println("Exiting...");
-                    return null;
-                }
-                case "X" -> {
-                    facade.clear();
-                    return null;
-                }
-                default -> System.out.println("Invalid option.");
+            } catch (Exception e) {
+                System.out.println("Unexpected error: " + e.getMessage());
             }
         }
     }
@@ -51,6 +60,14 @@ public class PreloginUI {
         System.out.println("X| Clears everything");
     }
 
+    private String handleRegisterSafe() {
+        try {
+            return handleRegister();
+        } catch (ResponseException e) {
+            System.out.println("Could not register: " + e.getMessage());
+            return null;
+        }
+    }
     public String handleRegister() throws ResponseException {
         System.out.print("Username: ");
         String user = scanner.nextLine();
@@ -63,11 +80,21 @@ public class PreloginUI {
         return authToken;
     }
 
+    private String handleLoginSafe() {
+        try {
+            return handleLogin();
+        } catch (ResponseException e) {
+            System.out.println("Login failed: " + e.getMessage());
+            return null;
+        }
+    }
     public String handleLogin() throws ResponseException {
         System.out.print("Username: ");
         String user = scanner.nextLine();
         System.out.print("Password: ");
         String pass = scanner.nextLine();
-        return facade.login(new LoginRequest(user, pass)).authToken();
+        String authToken = facade.login(new LoginRequest(user, pass)).authToken();
+        System.out.println("Login successful!");
+        return authToken;
     }
 }
