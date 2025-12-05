@@ -5,6 +5,7 @@ import facade.ServerFacade;
 import model.GameData;
 import requests.*;
 import ui.GameplayUI;
+import ui.websocket.WebSocketCommunicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,12 +53,12 @@ public class PostloginUI {
     }
 
     private void help() {
-        System.out.println("Help| Shows possible commands");
-        System.out.println("1| Logs out");
-        System.out.println("2| Creates a game");
-        System.out.println("3| Lists all current games");
-        System.out.println("4| Joins a game");
-        System.out.println("5| Watches a game");
+        System.out.println("Help | Shows possible commands");
+        System.out.println("1    | Logs out");
+        System.out.println("2    | Creates a game");
+        System.out.println("3    | Lists all current games");
+        System.out.println("4    | Joins a game");
+        System.out.println("5    | Watches a game");
     }
 
     private void createGameSafe() {
@@ -123,8 +124,15 @@ public class PostloginUI {
         facade.join(new JoinGameRequest(authToken, color, gameData.gameID()));
         System.out.println("Joined game " + gameData.gameID() + " as " + color);
 
-        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, color);
-        gameplay.show();
+        try {
+            String serverUrl = "http://localhost:8080";
+            WebSocketCommunicator ws = new WebSocketCommunicator(serverUrl);
+
+            GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, color, ws);
+            gameplay.show();
+        } catch (Exception e) {
+            System.out.println("Couldn't connect to the game server: " + e.getMessage());
+        }
     }
 
     private void observeGameSafe() {
@@ -146,7 +154,15 @@ public class PostloginUI {
         }
 
         GameData gameData = currentGames.get(index);
-        GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, "observer");
-        gameplay.show();
+
+        try {
+            String serverUrl = "http://localhost:8080";
+            WebSocketCommunicator ws = new WebSocketCommunicator(serverUrl);
+
+            GameplayUI gameplay = new GameplayUI(facade, authToken, gameData, "observer", ws);
+            gameplay.show();
+        } catch (Exception e) {
+            System.out.println("Couldn't connect to the game server: " + e.getMessage());
+        }
     }
 }

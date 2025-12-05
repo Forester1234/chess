@@ -47,10 +47,10 @@ public class PreloginUI {
 
     public void help() {
         System.out.println("Help| Shows possible commands");
-        System.out.println("1| Registers an account");
-        System.out.println("2| Login with an existing account");
-        System.out.println("0| Quits program");
-        System.out.println("X| Clears everything");
+        System.out.println("1   | Registers an account");
+        System.out.println("2   | Login with an existing account");
+        System.out.println("0   | Quits program");
+        System.out.println("X   | Clears everything");
     }
 
     private String handleRegisterSafe() {

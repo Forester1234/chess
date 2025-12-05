@@ -21,11 +21,12 @@ At startup
 import chess.*;
 import facade.ServerFacade;
 import model.GameData;
-import websocket.WebSocketCommunicator;
+import ui.websocket.WebSocketCommunicator;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -35,7 +36,7 @@ public class GameplayUI {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade;
     private final String authToken;
-    private final GameData game;
+    private GameData game;
     private final int gameID;
     private final String perspective;
 
@@ -67,7 +68,7 @@ public class GameplayUI {
         // Set the board
         drawBoard();
 
-        while (true) {
+        while (running) {
             System.out.print("\n(game)>");
             handleUserInput(scanner.nextLine().trim().toLowerCase());
         }
@@ -76,13 +77,11 @@ public class GameplayUI {
     private void handleUserInput(String input) {
         switch (input) {
             case "Help" -> printHelp();
-            case "redraw" -> drawBoard();
-            case "move" -> doMove();
-            case "highlight" -> highlight();
-            case "leave" -> {leave();
-                System.out.println("Leaving game...");}
-            case "resign" -> {resign();
-                System.out.println("You resigned. (Phase 6)");}
+            case "1" -> drawBoard();
+            case "2" -> doMove();
+            case "3" -> highlight();
+            case "4" -> {leave();}
+            case "5" -> {resign();}
             default -> System.out.println("Unknown command. Type 'help'.");
         }
     }
@@ -91,12 +90,12 @@ public class GameplayUI {
     private void printHelp() {
         System.out.println("""
                 Commands:
-                    Help      - show this menu
-                    redraw    - redraw the board
-                    move      - move a chess piece
-                    highlight - show legal moves for a piece
-                    leave     - return to menu
-                    resign    - resign the game
+                    Help | show this menu
+                    1    | redraw the board
+                    2    | move a chess piece
+                    3    | highlight legal moves for a piece
+                    4    | return to menu
+                    5    | resign the game
                 """);
     }
 
@@ -112,6 +111,111 @@ public class GameplayUI {
         }
 
         System.out.println();
+    }
+
+    private void doMove() {
+        System.out.print("Enter start then end point (e.g.,c2 a2): ");
+        String[] fields = scanner.nextLine().trim().split(" ");
+        if (fields.length != 2) {
+            System.out.println("Invalid format.");
+            return;
+        }
+
+        ChessPosition start = parsePos(fields[0]);
+        ChessPosition end = parsePos(fields[1]);
+        if (start == null || end == null) {
+            System.out.println("Invalid square.");
+            return;
+        }
+        // add ability to promote pawns
+        ChessMove move = new ChessMove(start, end, null);
+
+        ws.send(new UserGameCommand(
+                UserGameCommand.CommandType.MAKE_MOVE,
+                authToken,
+                gameID,
+                move
+        ));
+    }
+
+    private void highlight() {
+        if (game == null) {
+            System.out.println("Game not loaded yet");
+            return;
+        }
+
+        System.out.println("Square to highlight");
+        ChessPosition pos = parsePos(scanner.nextLine().trim());
+        if (pos == null) {
+            System.out.println("Invalid square.");
+            return;
+        }
+
+        Collection<ChessMove> moves = game.game().validMoves(pos);
+        highlightBoard(pos, moves);
+    }
+
+    private void leave() {
+        ws.send(new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken,
+                gameID
+        ));
+        running = false;
+        System.out.println("Leaving game...");
+    }
+
+    private void resign() {
+        System.out.println("Are you sure you want to resign? 1| Yes or 2| No");
+        if (!scanner.nextLine().trim().equalsIgnoreCase("1")) {
+            return;
+        }
+
+        ws.send(new UserGameCommand(
+                UserGameCommand.CommandType.RESIGN,
+                authToken,
+                gameID
+        ));
+        System.out.println("You have resigned.");
+    }
+
+    // -------------- Util Functions ---------------------
+
+    private void handleServerMessage(ServerMessage msg) {
+        switch (msg.getServerMessageType()) {
+
+            case LOAD_GAME -> {
+                LoadGameMessage lg = (LoadGameMessage) msg;
+                this.game = lg.game;
+                drawBoard();
+            }
+
+            case ERROR -> {
+                ErrorMessage e = (ErrorMessage) msg;
+                System.out.println(SET_TEXT_COLOR_RED + "Error: " + e.errorMessage + RESET_TEXT_COLOR);
+            }
+
+            case NOTIFICATION -> {
+                NotificationMessage n = (NotificationMessage) msg;
+                System.out.println(SET_BG_COLOR_BLUE + "*** " + n.message + " ***" + RESET_TEXT_COLOR);
+            }
+        }
+    }
+
+    private ChessPosition parsePos(String s) {
+        if (s.length() != 2) {
+            return null;
+        }
+        char Col = s.charAt(0);
+        char Row = s.charAt(1);
+
+        int col = Col - 'a' +1;
+        int row = Row - '0';
+
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            return null;
+        }
+        return new ChessPosition(row, col);
     }
 
     private void drawWhitePerspective(ChessBoard board) {
@@ -158,6 +262,86 @@ public class GameplayUI {
             text = pieceToUnicode(piece);
         }
         
+        System.out.print(bg + text + RESET_BG_COLOR + RESET_TEXT_COLOR);
+    }
+
+    private void highlightBoard(ChessPosition pos, Collection<ChessMove> moves) {
+        ChessBoard board = game.game().getBoard();
+
+        HashSet<ChessPosition> destinations = new HashSet<>();
+        for (ChessMove m : moves) {
+            destinations.add(m.getEndPosition());
+        }
+
+        System.out.println();
+
+        if (perspective.equals("black")) {
+            drawHighlightBlackPerspective(board, pos, destinations);
+        } else {
+            drawHighlightWhitePerspective(board, pos, destinations);
+        }
+
+        System.out.println();
+    }
+
+    private void drawHighlightWhitePerspective(ChessBoard board,
+                                    ChessPosition pos,
+                                    HashSet<ChessPosition> destinations) {
+        printFileLetters("white");
+
+        for (int row = 8; row >= 1; row--) {
+            System.out.printf(" %d ", row);
+
+            for (int col = 1; col <= 8; col++) {
+                highlightSection(board, row, col, pos, destinations);
+            }
+
+            System.out.printf(" %d%n", row);
+        }
+
+        printFileLetters("white");
+    }
+    private void drawHighlightBlackPerspective(ChessBoard board,
+                                               ChessPosition pos,
+                                               HashSet<ChessPosition> destinations) {
+        printFileLetters("black");
+
+        for (int row = 1; row <= 8; row++) {
+            System.out.printf(" %d ", row);
+
+            for (int col = 8; col >= 1; col--) {
+                highlightSection(board, row, col, pos, destinations);
+            }
+
+            System.out.printf(" %d%n", row);
+        }
+
+        printFileLetters("black");
+    }
+    private void highlightSection(ChessBoard board,
+                                  int row,
+                                  int col,
+                                  ChessPosition selected,
+                                  HashSet<ChessPosition> destinations) {
+        ChessPosition pos = new ChessPosition(row, col);
+        ChessPiece piece = board.getPiece(pos);
+
+        boolean isSelected = pos.equals(selected);
+        boolean isDestination = destinations.contains(pos);
+
+        String bg;
+
+        if (isSelected) {
+            bg = SET_BG_COLOR_GREEN;
+        } else if (isDestination) {
+            bg = SET_BG_COLOR_YELLOW;
+        } else {
+            boolean lightSquare = ((row + col) % 2 == 0);
+            bg = lightSquare ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
+        }
+
+        String text = (piece != null) ? pieceToUnicode(piece) : EMPTY;
+
         System.out.print(bg + text + RESET_BG_COLOR + RESET_TEXT_COLOR);
     }
 
