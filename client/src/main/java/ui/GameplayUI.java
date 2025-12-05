@@ -1,5 +1,23 @@
 package ui;
 
+/*
+needs to:
+- draw board (based on perspective)
+- read commands (MAKE MOVE, HELP, RESIGN, LEAVE)
+- trigger WebSocket messages
+- receive ServerMessages and update board
+
+GameplayUI typically does:
+
+At startup
+- Ask PostLoginUI for chosen gameID
+- Call ServerFacade.join() for players only
+- Open WebSocketCommunicator
+- Send CONNECT command
+- Wait for LOAD_GAME message
+- Draw board
+*/
+
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
