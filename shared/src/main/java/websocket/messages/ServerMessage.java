@@ -43,16 +43,3 @@ public class ServerMessage {
         return Objects.hash(getServerMessageType());
     }
 }
-
-public class LoadGameMessage extends ServerMessage {
-    public GameData game;
-}
-
-public class ErrorMessage extends ServerMessage {
-    public String errorMessage;
-}
-
-public class NotificationMessage extends ServerMessage {
-    public String message;
-}
-
