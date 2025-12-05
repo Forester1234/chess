@@ -18,13 +18,14 @@ At startup
 - Draw board
 */
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import facade.ServerFacade;
 import model.GameData;
+import websocket.WebSocketCommunicator;
+import websocket.commands.UserGameCommand;
+import websocket.messages.*;
 
+import java.util.Collection;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -34,55 +35,73 @@ public class GameplayUI {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade;
     private final String authToken;
-    private final GameData gameData;
+    private final GameData game;
+    private final int gameID;
     private final String perspective;
 
-    public GameplayUI(ServerFacade facade, String authToken, GameData gameData, String color) {
+    private final WebSocketCommunicator ws;
+    private boolean running = true;
+
+    public GameplayUI(ServerFacade facade, String authToken, GameData gameData, String color, WebSocketCommunicator ws) {
         this.facade = facade;
         this.authToken = authToken;
-        this.gameData = gameData;
+        this.gameID = gameData.gameID();
+        this.game = gameData;
         this.perspective = color.toLowerCase();
+        this.ws = ws;
+
+        ws.setOnMessage(this::handleServerMessage);
     }
 
     public void show() {
-        System.out.println("\nEntering game: " + gameData.gameName());
+        System.out.println("\nEntering game: " + game.gameName());
         System.out.println("Type 'Help' for options.\n");
 
+        // CONNECT over WebSocket
+        ws.send(new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken,
+                gameID
+        ));
+
+        // Set the board
         drawBoard();
 
         while (true) {
             System.out.print("\n(game)>");
-
-            switch (scanner.nextLine().trim().toLowerCase()) {
-                case "Help" -> printHelp();
-                case "leave" -> {
-                    System.out.println("Leaving game...");
-                    return;
-                }
-                case "resign" -> {
-                    System.out.println("You resigned. (Phase 6)");
-                    return;
-                }
-                default -> System.out.println("Unknown command. Type 'help'.");
-            }
+            handleUserInput(scanner.nextLine().trim().toLowerCase());
         }
     }
 
+    private void handleUserInput(String input) {
+        switch (input) {
+            case "Help" -> printHelp();
+            case "redraw" -> drawBoard();
+            case "move" -> doMove();
+            case "highlight" -> highlight();
+            case "leave" -> {leave();
+                System.out.println("Leaving game...");}
+            case "resign" -> {resign();
+                System.out.println("You resigned. (Phase 6)");}
+            default -> System.out.println("Unknown command. Type 'help'.");
+        }
+    }
+
+    // -------------- Input Functions ---------------------
     private void printHelp() {
         System.out.println("""
                 Commands:
-                    Help   - show this menu
-                    leave  - return to menu
-                    resign - resign the game
-                    
-                (Phase 6)
+                    Help      - show this menu
+                    redraw    - redraw the board
+                    move      - move a chess piece
+                    highlight - show legal moves for a piece
+                    leave     - return to menu
+                    resign    - resign the game
                 """);
     }
 
-    // ------------------- Draw Board ----------------------
-
     private void drawBoard() {
-        ChessBoard board = gameData.game().getBoard();
+        ChessBoard board = game.game().getBoard();
 
         System.out.println();
 
