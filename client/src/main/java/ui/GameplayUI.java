@@ -1,23 +1,5 @@
 package ui;
 
-/*
-needs to:
-- draw board (based on perspective)
-- read commands (MAKE MOVE, HELP, RESIGN, LEAVE)
-- trigger WebSocket messages
-- receive ServerMessages and update board
-
-GameplayUI typically does:
-
-At startup
-- Ask PostLoginUI for chosen gameID
-- Call ServerFacade.join() for players only
-- Open WebSocketCommunicator
-- Send CONNECT command
-- Wait for LOAD_GAME message
-- Draw board
-*/
-
 import chess.*;
 import facade.ServerFacade;
 import model.GameData;
@@ -127,15 +109,53 @@ public class GameplayUI {
             System.out.println("Invalid square.");
             return;
         }
-        // add ability to promote pawns
-        ChessMove move = new ChessMove(start, end, null);
 
-        ws.send(new UserGameCommand(
-                UserGameCommand.CommandType.MAKE_MOVE,
-                authToken,
-                gameID,
-                move
-        ));
+        ChessPiece piece = game.game().getBoard().getPiece(start);
+        ChessPiece.PieceType promotionType = null;
+
+        if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int lastRank = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 8 : 1;
+            if (end.getRow() == lastRank) {
+                while (true) {
+                    System.out.print("Promote pawn to (Q/K/B/R): ");
+                    String choice = scanner.nextLine().trim().toUpperCase();
+                    switch (choice) {
+                        case "Q" -> {
+                            promotionType= ChessPiece.PieceType.QUEEN;
+                        }
+                        case "K" -> {
+                            promotionType= ChessPiece.PieceType.KNIGHT;
+                        }
+                        case "B" -> {
+                            promotionType= ChessPiece.PieceType.BISHOP;
+                        }
+                        case "R" -> {
+                            promotionType= ChessPiece.PieceType.ROOK;
+                        }
+                        default -> {
+                            System.out.println("Invalid choice. Please enter Q, K, B, or R.");
+                            continue;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        ChessMove move = new ChessMove(start, end, promotionType);
+
+        try {
+            game.game().makeMove(move);
+
+            ws.send(new UserGameCommand(
+                    UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken,
+                    gameID,
+                    move
+            ));
+        } catch (InvalidMoveException e) {
+            System.out.println("Invalid move: " + e.getMessage());
+        }
     }
 
     private void highlight() {
