@@ -116,18 +116,7 @@ public class GameplayUI {
         if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             int lastRank = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 8 : 1;
             if (end.getRow() == lastRank) {
-                while (true) {
-                    System.out.print("Promote pawn to (Q/K/B/R): ");
-                    String choice = scanner.nextLine().trim().toUpperCase();
-                    switch (choice) {
-                        case "Q" -> promotionType= ChessPiece.PieceType.QUEEN;
-                        case "K" -> promotionType= ChessPiece.PieceType.KNIGHT;
-                        case "B" -> promotionType= ChessPiece.PieceType.BISHOP;
-                        case "R" -> promotionType= ChessPiece.PieceType.ROOK;
-                        default -> System.out.println("Invalid choice. Please enter Q, K, B, or R."); continue;
-                    }
-                    break;
-                }
+                promotionType = askPromotion();
             }
         }
 
@@ -145,6 +134,22 @@ public class GameplayUI {
         } catch (InvalidMoveException e) {
             System.out.println("Invalid move: " + e.getMessage());
         }
+    }
+
+    private ChessPiece.PieceType askPromotion() {
+        System.out.print("Promote pawn to (Q/K/B/R): ");
+        String choice = scanner.nextLine().trim().toUpperCase();
+
+        return switch (choice) {
+            case "Q" -> ChessPiece.PieceType.QUEEN;
+            case "K" -> ChessPiece.PieceType.KNIGHT;
+            case "B" -> ChessPiece.PieceType.BISHOP;
+            case "R" -> ChessPiece.PieceType.ROOK;
+            default -> {
+                System.out.println("Invalid choice. Please enter Q, K, B, or R.");
+                yield askPromotion();
+            }
+        };
     }
 
     private void highlight() {
