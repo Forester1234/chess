@@ -81,11 +81,6 @@ public class ConnectionManager {
         sessionToUser.remove(ctx);
     }
 
-
-    public void removeGameSessions(Integer gameID) {
-        gameToSessions.remove(gameID);
-    }
-
     public Set<WsContext> getSessionsForGame(Integer gameID) {
         return gameToSessions.getOrDefault(gameID, Collections.emptySet());
     }

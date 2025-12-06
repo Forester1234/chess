@@ -102,11 +102,11 @@ public class WebSocketHandler {
         }
 
         String playerColor;
-        if (username.equals(gameData.whiteUsername()))
+        if (username.equals(gameData.whiteUsername())) {
             playerColor = "WHITE";
-        else if (username.equals(gameData.blackUsername()))
+        } else if (username.equals(gameData.blackUsername())) {
             playerColor = "BLACK";
-        else {
+        } else {
             sendError(ctx, "Error: observers cannot make moves");
             return;
         }
@@ -163,10 +163,11 @@ public class WebSocketHandler {
         String username = check.username();
         GameData gameData = check.gameData();
 
-        if (username.equals(gameData.whiteUsername()))
+        if (username.equals(gameData.whiteUsername())) {
             gameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
-        else if (username.equals(gameData.blackUsername()))
+        } else if (username.equals(gameData.blackUsername())) {
             gameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+        }
 
         connectionManager.removeFromGame(cmd.getGameID(), ctx);
         service.updateGame(gameData);
