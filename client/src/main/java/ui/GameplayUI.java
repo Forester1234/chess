@@ -220,11 +220,9 @@ public class GameplayUI {
         if (s.length() != 2) {
             return null;
         }
-        char Col = s.charAt(0);
-        char Row = s.charAt(1);
 
-        int col = Col - 'a' +1;
-        int row = Row - '0';
+        int col = s.charAt(0) - 'a' +1;
+        int row = s.charAt(1) - '0';
 
         if (col < 1 || col > 8 || row < 1 || row > 8) {
             return null;

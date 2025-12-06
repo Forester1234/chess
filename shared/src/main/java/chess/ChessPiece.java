@@ -112,21 +112,31 @@ public class ChessPiece {
         int[] dc = {-1, 1};
         for (int d : dc) {
             int newCol = col + d;
-            if (newCol >= 1 && newCol < 8) {
-                ChessPosition diag = new ChessPosition(row + dir, newCol);
-                ChessPiece target = board.getPiece(diag);
-                if (target != null && target.getTeamColor() != piece.getTeamColor()) {
-                    if (promo) {
-                        for (PieceType p : promoPieces) {
-                            moves.add(new ChessMove(pos, diag, p));
-                        }
-                    } else {
-                        moves.add(new ChessMove(pos, diag, null));
-                    }
-                }
+
+            if (newCol < 1 || newCol > 8) {continue;}
+
+            ChessPosition diag = new ChessPosition(row + dir, newCol);
+            ChessPiece target = board.getPiece(diag);
+
+            if (target == null || target.getTeamColor() == piece.getTeamColor()) {continue;}
+
+            if (promo) {
+                addPromotionMoves(pos, diag, moves);
+            } else {
+                moves.add(new ChessMove(pos, diag, null));
             }
         }
     }
+
+    private void addPromotionMoves(ChessPosition from, ChessPosition to, List<ChessMove> moves) {
+        ChessPiece.PieceType[] promoPieces =
+                {PieceType.QUEEN, PieceType.KNIGHT, PieceType.BISHOP, PieceType.ROOK};
+
+        for (PieceType p : promoPieces) {
+            moves.add(new ChessMove(from, to, p));
+        }
+    }
+
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);

@@ -87,7 +87,7 @@ public class WebSocketHandler {
 
     private void handleMakeMove(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
         BasicCheckResult check = testBasic(ctx, cmd);
-        if (check == null) return;
+        if (check == null) {return;}
 
         String username = check.username();
         GameData gameData = check.gameData();
@@ -134,7 +134,7 @@ public class WebSocketHandler {
 
     private void handleLeave(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
         BasicCheckResult check = testBasic(ctx, cmd);
-        if (check == null) return;
+        if (check == null) {return;}
 
         String username = check.username();
         GameData gameData = check.gameData();
@@ -150,7 +150,7 @@ public class WebSocketHandler {
 
     private void handleResign(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
         BasicCheckResult check = testBasic(ctx, cmd);
-        if (check == null) return;
+        if (check == null) {return;}
 
         String username = check.username();
         GameData gameData = check.gameData();
