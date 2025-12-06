@@ -164,4 +164,12 @@ public class Service {
         gameDAO.clear();
         userDAO.clear();
     }
+
+    public void updateGame(GameData gameData) {
+        try {
+            gameDAO.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to update game", e);
+        }
+    }
 }

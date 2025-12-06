@@ -46,6 +46,10 @@ public class ChessGame {
         this.currentTurn = team;
     }
 
+    public String getCurrentPlayerColor() {
+        return currentTurn == TeamColor.WHITE ? "white" : "black";
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */

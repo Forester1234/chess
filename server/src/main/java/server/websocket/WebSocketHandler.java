@@ -1,9 +1,12 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import io.javalin.Javalin;
 import io.javalin.websocket.WsContext;
+import model.GameData;
 import service.Service;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -81,8 +84,59 @@ public class WebSocketHandler {
         }
     }
 
-    private void handleMakeMove(WsContext ctx, UserGameCommand cmd) {
-        // TODO implement move handling
+    private void handleMakeMove(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
+        var auth = service.getAuth(cmd.getAuthToken());
+        if (auth == null) {
+            sendError(ctx, "Error: unauthorized");
+            return;
+        }
+
+        GameData gameData = service.getGame(cmd.getGameID());
+        if (gameData == null) {
+            sendError(ctx, "Error: game does not exist");
+            return;
+        }
+
+        ChessGame game = gameData.game();
+
+        String playerColor = game.getCurrentPlayerColor();
+        if (!playerColor.equals(game.getTeamTurn().name())) {
+            sendError(ctx, "Error: not your turn");
+            return;
+        }
+
+        try {
+            game.makeMove(cmd.getMove());
+        } catch (InvalidMoveException e) {
+            sendError(ctx, "Error: illegal move");
+            return;
+        }
+
+        service.updateGame(gameData);
+
+        for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+            otherCtx.send(gson.toJson(new LoadGameMessage(gameData)));
+        }
+
+        String moveDescription = cmd.getAuthToken() + " made a move: " + cmd.getMove();
+        for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+            if (!otherCtx.equals(ctx)) {
+                otherCtx.send(gson.toJson(new NotificationMessage(moveDescription)));
+            }
+        }
+
+        boolean isCheckmate = game.isInCheckmate(game.getTeamTurn());
+        if (!isCheckmate && game.isInCheck(game.getTeamTurn())) {
+            String checkMsg = "Check on " + game.getCurrentPlayerColor();
+            for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+                otherCtx.send(gson.toJson(new NotificationMessage(checkMsg)));
+            }
+        } else if (game.isInCheck(game.getTeamTurn())) {
+            String checkMsg = "Check on " + game.getCurrentPlayerColor();
+            for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+                otherCtx.send(gson.toJson(new NotificationMessage(checkMsg)));
+            }
+        }
     }
 
     private void handleLeave(WsContext ctx, UserGameCommand cmd) {

@@ -26,6 +26,10 @@ public class UserGameCommand {
         this.gameID = gameID;
     }
 
+    public ChessMove getMove() {
+        return move;
+    }
+
     public enum CommandType {
         CONNECT,
         MAKE_MOVE,
