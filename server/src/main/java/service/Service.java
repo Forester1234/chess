@@ -28,7 +28,7 @@ public class Service {
     private final GameDAOInterface gameDAO;
     private final UserDAOInterface userDAO;
 
-    public Service(AuthDAOInterface authDAO, GameDAOInterface gameDAO, UserDAOInterface userDAO){
+    public Service(AuthDAOInterface authDAO, GameDAOInterface gameDAO, UserDAOInterface userDAO) {
         this.userDAO = userDAO;
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
@@ -42,7 +42,7 @@ public class Service {
         }
 
         UserData existingUser = userDAO.getUser(register.username());
-        if (existingUser != null){
+        if (existingUser != null) {
             throw new IllegalStateException("Error: already taken");
         }
 
@@ -64,11 +64,11 @@ public class Service {
         }
 
         UserData user = userDAO.getUser(login.username());
-        if (user == null){
+        if (user == null) {
             throw new IllegalStateException("Error: unauthorized");
         }
 
-        if (!BCrypt.checkpw(login.password(), user.password())){
+        if (!BCrypt.checkpw(login.password(), user.password())) {
             throw new IllegalStateException("Error: unauthorized");
         }
 
@@ -82,7 +82,7 @@ public class Service {
     public void logout(String authToken) throws DataAccessException {
 
         AuthData authData = authDAO.getAuth(authToken);
-        if (authData == null){
+        if (authData == null) {
             throw new IllegalStateException("Error: unauthorized");
         }
 
@@ -92,7 +92,7 @@ public class Service {
     public ListResult getList(ListRequest list) throws DataAccessException {
 
         AuthData authData = authDAO.getAuth(list.authToken());
-        if (authData == null){
+        if (authData == null) {
             throw new IllegalStateException("Error: unauthorized");
         }
 
@@ -106,7 +106,7 @@ public class Service {
         }
 
         AuthData authData = authDAO.getAuth(create.authToken());
-        if (authData == null){
+        if (authData == null) {
             throw new IllegalStateException("Error: unauthorized");
         }
 
@@ -118,12 +118,12 @@ public class Service {
     public JoinResult joinGame(JoinRequest join) throws IllegalAccessException, DataAccessException {
         if (join.authToken() == null || join.authToken().isEmpty() ||
                 join.playerColor() == null || join.playerColor().isEmpty() ||
-                join.gameID() == 0){
+                join.gameID() == 0) {
             throw new IllegalArgumentException("Error: bad request");
         }
 
         AuthData authData = authDAO.getAuth(join.authToken());
-        if (authData == null){
+        if (authData == null) {
             throw new IllegalAccessException("Error: unauthorized");
         }
 
@@ -149,6 +149,14 @@ public class Service {
         gameDAO.updateGame(game);
 
         return new JoinResult();
+    }
+
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        return authDAO.getAuth(authToken);
+    }
+
+    public GameData getGame(int gameID) throws DataAccessException {
+        return gameDAO.findGame(gameID);
     }
 
     public void clearAll() throws DataAccessException {

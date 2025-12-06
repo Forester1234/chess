@@ -14,7 +14,7 @@ public class ConnectionManager {
 
     private final Map<String, WsContext> userToSession = new ConcurrentHashMap<>();
 
-    private final Map<String, Set<WsContext>> gameToSessions = new ConcurrentHashMap<>();
+    private final Map<Integer, Set<WsContext>> gameToSessions = new ConcurrentHashMap<>();
 
     public void addUserSession(String username, WsContext ctx) {
         sessionToUser.put(ctx, username);
@@ -32,7 +32,7 @@ public class ConnectionManager {
         }
     }
 
-    public void removeFromGame(String gameID, WsContext ctx) {
+    public void removeFromGame(Integer gameID, WsContext ctx) {
         Set<WsContext> sessions = gameToSessions.get(gameID);
         if (sessions != null) {
             sessions.remove(ctx);
@@ -42,11 +42,17 @@ public class ConnectionManager {
         }
     }
 
-    public Set<WsContext> getSessionsForGame(String gameID) {
+    public Set<WsContext> getSessionsForGame(Integer gameID) {
         return gameToSessions.getOrDefault(gameID, Collections.emptySet());
     }
 
     public WsContext getSession(String username) {
         return userToSession.get(username);
+    }
+
+    public void addSessionToGame(Integer gameID, WsContext ctx) {
+        gameToSessions
+                .computeIfAbsent(gameID, id -> ConcurrentHashMap.newKeySet())
+                .add(ctx);
     }
 }

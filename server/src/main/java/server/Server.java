@@ -42,7 +42,7 @@ public class Server {
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clearAll);
 
-        WebSocketHandler wsHandler = new WebSocketHandler();
+        WebSocketHandler wsHandler = new WebSocketHandler(service);
         wsHandler.registerEndpoints(javalin);
     }
 
