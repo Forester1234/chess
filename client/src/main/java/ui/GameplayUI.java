@@ -40,6 +40,7 @@ public class GameplayUI {
         System.out.println("\nEntering game: " + game.gameName());
         System.out.println("Type 'Help' for options.\n");
 
+        ws.setOnMessage(this::handleServerMessage);
         // CONNECT over WebSocket
         ws.send(new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
