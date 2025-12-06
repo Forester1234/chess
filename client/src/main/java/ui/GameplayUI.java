@@ -120,22 +120,11 @@ public class GameplayUI {
                     System.out.print("Promote pawn to (Q/K/B/R): ");
                     String choice = scanner.nextLine().trim().toUpperCase();
                     switch (choice) {
-                        case "Q" -> {
-                            promotionType= ChessPiece.PieceType.QUEEN;
-                        }
-                        case "K" -> {
-                            promotionType= ChessPiece.PieceType.KNIGHT;
-                        }
-                        case "B" -> {
-                            promotionType= ChessPiece.PieceType.BISHOP;
-                        }
-                        case "R" -> {
-                            promotionType= ChessPiece.PieceType.ROOK;
-                        }
-                        default -> {
-                            System.out.println("Invalid choice. Please enter Q, K, B, or R.");
-                            continue;
-                        }
+                        case "Q" -> promotionType= ChessPiece.PieceType.QUEEN;
+                        case "K" -> promotionType= ChessPiece.PieceType.KNIGHT;
+                        case "B" -> promotionType= ChessPiece.PieceType.BISHOP;
+                        case "R" -> promotionType= ChessPiece.PieceType.ROOK;
+                        default -> System.out.println("Invalid choice. Please enter Q, K, B, or R."); continue;
                     }
                     break;
                 }

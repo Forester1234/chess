@@ -15,7 +15,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class WebSocketHandler {
-    
+
     private final Gson gson = new Gson();
 
     private final ConnectionManager connectionManager = new ConnectionManager();
@@ -24,6 +24,9 @@ public class WebSocketHandler {
     public WebSocketHandler(Service service) {
         this.service = service;
     }
+
+    public record BasicCheckResult(String username, GameData gameData) {}
+
 
     public void registerEndpoints(Javalin app) {
         app.ws("/ws", ws -> {
@@ -56,22 +59,16 @@ public class WebSocketHandler {
     }
 
     private void handleConnect(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
-        var auth = service.getAuth(cmd.getAuthToken());
-        if (auth == null) {
-            sendError(ctx, "Error: unauthorized");
+        BasicCheckResult check = testBasic(ctx, cmd);
+        if (check == null) {
             ctx.session.close();
             return;
         }
 
-        var game = service.getGame(cmd.getGameID());
-        if (game == null) {
-            sendError(ctx, "Error: game does not exist");
-            ctx.session.close();
-            return;
-        }
+        String username = check.username();
+        GameData game = check.gameData();
 
-        boolean added = connectionManager.addUserToGame(cmd.getGameID(), auth.username(), ctx);
-        if (!added) {
+        if (!connectionManager.addUserToGame(cmd.getGameID(), username, ctx)) {
             sendError(ctx, "Error: already taken");
             ctx.session.close();
             return;
@@ -82,25 +79,18 @@ public class WebSocketHandler {
         for (var otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             if (!otherCtx.equals(ctx)) {
                 ServerMessage notice =
-                        new NotificationMessage(auth.username() + " has joined the game");
+                        new NotificationMessage(username + " has joined the game");
                 otherCtx.send(gson.toJson(notice));
             }
         }
     }
 
     private void handleMakeMove(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
-        var auth = service.getAuth(cmd.getAuthToken());
-        if (auth == null) {
-            sendError(ctx, "Error: unauthorized");
-            return;
-        }
+        BasicCheckResult check = testBasic(ctx, cmd);
+        if (check == null) return;
 
-        GameData gameData = service.getGame(cmd.getGameID());
-        if (gameData == null) {
-            sendError(ctx, "Error: game does not exist");
-            return;
-        }
-
+        String username = check.username();
+        GameData gameData = check.gameData();
         ChessGame game = gameData.game();
 
         if (game.isFinished()) {
@@ -108,7 +98,7 @@ public class WebSocketHandler {
             return;
         }
 
-        String playerColor = auth.username().equals(gameData.whiteUsername()) ? "WHITE" : "BLACK";
+        String playerColor = username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK";
         if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
             sendError(ctx, "Error: not your turn");
             return;
@@ -143,41 +133,27 @@ public class WebSocketHandler {
     }
 
     private void handleLeave(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
-        var auth = service.getAuth(cmd.getAuthToken());
-        if (auth == null) {
-            sendError(ctx, "Error: unauthorized");
-            return;
-        }
+        BasicCheckResult check = testBasic(ctx, cmd);
+        if (check == null) return;
 
-        GameData gameData = service.getGame(cmd.getGameID());
-        if (gameData == null) {
-            sendError(ctx, "Error: game does not exist");
-            return;
-        }
+        String username = check.username();
+        GameData gameData = check.gameData();
 
         connectionManager.removeFromGame(cmd.getGameID(), ctx);
-
         service.updateGame(gameData);
 
-        String leaveMsg = auth.username() + " has left the game";
+        String leaveMsg = username + " has left the game";
         for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             otherCtx.send(gson.toJson(new NotificationMessage(leaveMsg)));
         }
     }
 
     private void handleResign(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
-        var auth = service.getAuth(cmd.getAuthToken());
-        if (auth == null) {
-            sendError(ctx, "Error: unauthorized");
-            return;
-        }
+        BasicCheckResult check = testBasic(ctx, cmd);
+        if (check == null) return;
 
-        GameData gameData = service.getGame(cmd.getGameID());
-        if (gameData == null) {
-            sendError(ctx, "Error: game does not exist");
-            return;
-        }
-
+        String username = check.username();
+        GameData gameData = check.gameData();
         ChessGame game = gameData.game();
 
         if (game.isFinished()) {
@@ -185,29 +161,43 @@ public class WebSocketHandler {
             return;
         }
 
-        String resigningPlayer = auth.username();
-        String winner;
+        String winner = username.equals(gameData.whiteUsername())
+                ? gameData.blackUsername()
+                : username.equals(gameData.blackUsername())
+                ? gameData.whiteUsername()
+                : null;
 
-        if (resigningPlayer.equals(gameData.whiteUsername())) {
-            winner = gameData.blackUsername();
-        } else if (resigningPlayer.equals(gameData.blackUsername())) {
-            winner = gameData.whiteUsername();
-        } else {
+        if (winner == null) {
             sendError(ctx, "Error: you are not part of this game");
             return;
         }
 
         gameData.game().setFinished(true);
         gameData.game().setWinner(winner);
-
         service.updateGame(gameData);
 
-        String message = resigningPlayer + " has resigned. " + winner + " wins!";
+        String message = username + " has resigned. " + winner + " wins!";
         for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             otherCtx.send(gson.toJson(new NotificationMessage(message)));
         }
 
         connectionManager.removeGameSessions(cmd.getGameID());
+    }
+
+    private BasicCheckResult testBasic (WsContext ctx, UserGameCommand cmd) throws DataAccessException {
+        var auth = service.getAuth(cmd.getAuthToken());
+        if (auth == null) {
+            sendError(ctx, "Error: unauthorized");
+            return null;
+        }
+
+        GameData gameData = service.getGame(cmd.getGameID());
+        if (gameData == null) {
+            sendError(ctx, "Error: game does not exist");
+            return null;
+        }
+
+        return new BasicCheckResult(auth.username(), gameData);
     }
 
 

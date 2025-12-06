@@ -91,10 +91,6 @@ public class ConnectionManager {
         return gameToSessions.getOrDefault(gameID, Collections.emptySet());
     }
 
-    public WsContext getSession(String username) {
-        return userToSession.get(username);
-    }
-
     public void addSessionToGame(Integer gameID, WsContext ctx) {
         gameToSessions
                 .computeIfAbsent(gameID, id -> ConcurrentHashMap.newKeySet())
