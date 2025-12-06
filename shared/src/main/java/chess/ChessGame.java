@@ -11,6 +11,8 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private String winner = null;
+    private boolean finished = false;
 
     private ChessBoard board;
     private TeamColor currentTurn;
@@ -389,6 +391,21 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+    public void setWinner(String winner) {
+        this.winner = winner;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public String getWinner() {
+        return winner;
     }
 
     @Override

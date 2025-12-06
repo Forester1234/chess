@@ -100,7 +100,7 @@ public class WebSocketHandler {
         ChessGame game = gameData.game();
 
         String playerColor = game.getCurrentPlayerColor();
-        if (!playerColor.equals(game.getTeamTurn().name())) {
+        if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
             sendError(ctx, "Error: not your turn");
             return;
         }
@@ -143,8 +143,49 @@ public class WebSocketHandler {
         // TODO implement leave handling
     }
 
-    private void handleResign(WsContext ctx, UserGameCommand cmd) {
-        // TODO implement resign handling
+    private void handleResign(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
+        var auth = service.getAuth(cmd.getAuthToken());
+        if (auth == null) {
+            sendError(ctx, "Error: unauthorized");
+            return;
+        }
+
+        GameData gameData = service.getGame(cmd.getGameID());
+        if (gameData == null) {
+            sendError(ctx, "Error: game does not exist");
+            return;
+        }
+
+        ChessGame game = gameData.game();
+
+        if (game.isFinished()) {
+            sendError(ctx, "Error: game already over");
+            return;
+        }
+
+        String resigningPlayer = auth.username();
+        String winner;
+
+        if (resigningPlayer.equals(gameData.whiteUsername())) {
+            winner = gameData.blackUsername();
+        } else if (resigningPlayer.equals(gameData.blackUsername())) {
+            winner = gameData.whiteUsername();
+        } else {
+            sendError(ctx, "Error: you are not part of this game");
+            return;
+        }
+
+        gameData.game().setFinished(true);
+        gameData.game().setWinner(winner);
+
+        service.updateGame(gameData);
+
+        String message = resigningPlayer + " has resigned. " + winner + " wins!";
+        for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+            otherCtx.send(gson.toJson(new NotificationMessage(message)));
+        }
+
+        connectionManager.removeGameSessions(cmd.getGameID());
     }
 
 
