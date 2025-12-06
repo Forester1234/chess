@@ -8,4 +8,11 @@ public record GameData(
         String blackUsername,
         String gameName,
         ChessGame game
-){}
+){
+    public String getUsername(ChessGame.TeamColor color) {
+        return switch (color) {
+            case WHITE -> whiteUsername;
+            case BLACK -> blackUsername;
+        };
+    }
+}

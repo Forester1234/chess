@@ -64,7 +64,6 @@ public class ConnectionManager {
             }
         }
 
-
         String username = sessionToUser.get(ctx);
         if (username != null) {
             Set<String> players = gameToPlayers.get(gameID);

@@ -78,8 +78,11 @@ public class WebSocketHandler {
 
         for (var otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             if (!otherCtx.equals(ctx)) {
+                boolean isWhite = username.equals(game.whiteUsername());
+                boolean isBlack = username.equals(game.blackUsername());
+                String role = isWhite ? "WHITE" : isBlack ? "BLACK" : "an observer";
                 ServerMessage notice =
-                        new NotificationMessage(username + " has joined the game");
+                        new NotificationMessage(username + " joined the game as " + role);
                 otherCtx.send(gson.toJson(notice));
             }
         }
@@ -98,7 +101,15 @@ public class WebSocketHandler {
             return;
         }
 
-        String playerColor = username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK";
+        String playerColor;
+        if (username.equals(gameData.whiteUsername()))
+            playerColor = "WHITE";
+        else if (username.equals(gameData.blackUsername()))
+            playerColor = "BLACK";
+        else {
+            sendError(ctx, "Error: observers cannot make moves");
+            return;
+        }
         if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
             sendError(ctx, "Error: not your turn");
             return;
@@ -117,18 +128,31 @@ public class WebSocketHandler {
             otherCtx.send(gson.toJson(new LoadGameMessage(gameData)));
         }
 
-        String moveDescription = cmd.getAuthToken() + " made a move: " + cmd.getMove();
+        String moveDescription = username + " made a move: " + cmd.getMove();
         for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             if (!otherCtx.equals(ctx)) {
                 otherCtx.send(gson.toJson(new NotificationMessage(moveDescription)));
             }
         }
 
-        if (game.isInCheck(game.getTeamTurn())) {
-            String checkMsg = "Check on " + game.getCurrentPlayerColor();
-            for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
-                otherCtx.send(gson.toJson(new NotificationMessage(checkMsg)));
-            }
+        ChessGame.TeamColor toMove = game.getTeamTurn();
+
+        if (game.isInCheckmate(toMove)) {
+            String msg = gameData.getUsername(toMove) + " is in checkmate";
+            broadcast(cmd.getGameID(), msg);
+        } else if (game.isInStalemate(toMove)) {
+            String msg = "Game ended in stalemate";
+            broadcast(cmd.getGameID(), msg);
+        } else if (game.isInCheck(toMove)) {
+            String msg = gameData.getUsername(toMove) + " is in check";
+            broadcast(cmd.getGameID(), msg);
+        }
+    }
+
+    private void broadcast(int gameID, String text) {
+        NotificationMessage msg = new NotificationMessage(text);
+        for (WsContext c : connectionManager.getSessionsForGame(gameID)) {
+            c.send(gson.toJson(msg));
         }
     }
 
@@ -138,6 +162,11 @@ public class WebSocketHandler {
 
         String username = check.username();
         GameData gameData = check.gameData();
+
+        if (username.equals(gameData.whiteUsername()))
+            gameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+        else if (username.equals(gameData.blackUsername()))
+            gameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
 
         connectionManager.removeFromGame(cmd.getGameID(), ctx);
         service.updateGame(gameData);
@@ -180,8 +209,6 @@ public class WebSocketHandler {
         for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             otherCtx.send(gson.toJson(new NotificationMessage(message)));
         }
-
-        connectionManager.removeGameSessions(cmd.getGameID());
     }
 
     private BasicCheckResult testBasic (WsContext ctx, UserGameCommand cmd) throws DataAccessException {
