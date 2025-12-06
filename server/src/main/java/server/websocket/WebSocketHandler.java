@@ -99,7 +99,7 @@ public class WebSocketHandler {
 
         ChessGame game = gameData.game();
 
-        String playerColor = game.getCurrentPlayerColor();
+        String playerColor = auth.username().equals(gameData.whiteUsername()) ? "WHITE" : "BLACK";
         if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
             sendError(ctx, "Error: not your turn");
             return;
@@ -125,13 +125,7 @@ public class WebSocketHandler {
             }
         }
 
-        boolean isCheckmate = game.isInCheckmate(game.getTeamTurn());
-        if (!isCheckmate && game.isInCheck(game.getTeamTurn())) {
-            String checkMsg = "Check on " + game.getCurrentPlayerColor();
-            for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
-                otherCtx.send(gson.toJson(new NotificationMessage(checkMsg)));
-            }
-        } else if (game.isInCheck(game.getTeamTurn())) {
+        if (game.isInCheck(game.getTeamTurn())) {
             String checkMsg = "Check on " + game.getCurrentPlayerColor();
             for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
                 otherCtx.send(gson.toJson(new NotificationMessage(checkMsg)));
@@ -139,8 +133,32 @@ public class WebSocketHandler {
         }
     }
 
-    private void handleLeave(WsContext ctx, UserGameCommand cmd) {
-        // TODO implement leave handling
+    private void handleLeave(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
+        var auth = service.getAuth(cmd.getAuthToken());
+        if (auth == null) {
+            sendError(ctx, "Error: unauthorized");
+            return;
+        }
+
+        GameData gameData = service.getGame(cmd.getGameID());
+        if (gameData == null) {
+            sendError(ctx, "Error: game does not exist");
+            return;
+        }
+
+        ChessGame game = gameData.game();
+
+        service.updateGame(gameData);
+
+        connectionManager.removeFromGame(cmd.getGameID(), ctx);
+        connectionManager.removeUserSession(ctx);
+
+        String leaveMsg = auth.username() + " has left the game";
+        for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
+            otherCtx.send(gson.toJson(new NotificationMessage(leaveMsg)));
+        }
+
+        connectionManager.removeUserSession(ctx);
     }
 
     private void handleResign(WsContext ctx, UserGameCommand cmd) throws DataAccessException {
