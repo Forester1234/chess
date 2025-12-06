@@ -70,12 +70,16 @@ public class WebSocketHandler {
             return;
         }
 
-        connectionManager.addUserSession(auth.username(), ctx);
-        connectionManager.addSessionToGame(cmd.getGameID(), ctx);
+        boolean added = connectionManager.addUserToGame(cmd.getGameID(), auth.username(), ctx);
+        if (!added) {
+            sendError(ctx, "Error: already taken");
+            ctx.session.close();
+            return;
+        }
 
         ctx.send(gson.toJson(new LoadGameMessage(game)));
 
-        for (var otherCtx : connectionManager.getSessionsForGame(Integer.valueOf(cmd.getGameID()))) {
+        for (var otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             if (!otherCtx.equals(ctx)) {
                 ServerMessage notice =
                         new NotificationMessage(auth.username() + " has joined the game");
@@ -98,6 +102,11 @@ public class WebSocketHandler {
         }
 
         ChessGame game = gameData.game();
+
+        if (game.isFinished()) {
+            sendError(ctx, "Error: game already over");
+            return;
+        }
 
         String playerColor = auth.username().equals(gameData.whiteUsername()) ? "WHITE" : "BLACK";
         if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
@@ -146,19 +155,14 @@ public class WebSocketHandler {
             return;
         }
 
-        ChessGame game = gameData.game();
+        connectionManager.removeFromGame(cmd.getGameID(), ctx);
 
         service.updateGame(gameData);
-
-        connectionManager.removeFromGame(cmd.getGameID(), ctx);
-        connectionManager.removeUserSession(ctx);
 
         String leaveMsg = auth.username() + " has left the game";
         for (WsContext otherCtx : connectionManager.getSessionsForGame(cmd.getGameID())) {
             otherCtx.send(gson.toJson(new NotificationMessage(leaveMsg)));
         }
-
-        connectionManager.removeUserSession(ctx);
     }
 
     private void handleResign(WsContext ctx, UserGameCommand cmd) throws DataAccessException {

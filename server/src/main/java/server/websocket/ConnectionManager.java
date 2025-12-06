@@ -16,6 +16,29 @@ public class ConnectionManager {
 
     private final Map<Integer, Set<WsContext>> gameToSessions = new ConcurrentHashMap<>();
 
+    private final Map<Integer, Set<String>> gameToPlayers = new ConcurrentHashMap<>();
+
+    public boolean addUserToGame(Integer gameID, String username, WsContext ctx) {
+        Set<String> players = gameToPlayers.computeIfAbsent(gameID, k -> ConcurrentHashMap.newKeySet());
+        players.remove(username);
+
+        if (!players.add(username)) {
+            return false;
+        }
+
+        WsContext oldSession = userToSession.get(username);
+        if (oldSession != null) {
+            removeUserSession(oldSession);
+            for (Set<WsContext> s : gameToSessions.values()) {
+                s.remove(oldSession);
+            }
+        }
+
+        addSessionToGame(gameID, ctx);
+        addUserSession(username, ctx);
+        return true;
+    }
+
     public void addUserSession(String username, WsContext ctx) {
         sessionToUser.put(ctx, username);
         userToSession.put(username, ctx);
@@ -40,7 +63,25 @@ public class ConnectionManager {
                 gameToSessions.remove(gameID);
             }
         }
+
+
+        String username = sessionToUser.get(ctx);
+        if (username != null) {
+            Set<String> players = gameToPlayers.get(gameID);
+            if (players != null) {
+                players.remove(username);
+                if (players.isEmpty()) {
+                    gameToPlayers.remove(gameID);
+                }
+            }
+        }
+
+        if (username != null) {
+            userToSession.remove(username);
+        }
+        sessionToUser.remove(ctx);
     }
+
 
     public void removeGameSessions(Integer gameID) {
         gameToSessions.remove(gameID);

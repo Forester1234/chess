@@ -128,26 +128,29 @@ public class Service {
         }
 
         GameData game = gameDAO.findGame(join.gameID());
-
         String username = authData.username();
         String color = join.playerColor().toLowerCase();
 
-        if (color.equals("white")) {
-            if (game.whiteUsername() != null) {
-                throw new IllegalStateException("Error: already taken");
-            }
-            game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-        } else if (color.equals("black")) {
-            if (game.blackUsername() != null) {
-                throw new IllegalStateException("Error: already taken");
-            }
-            game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-        } else if (!color.equals("observer")) {
-            throw new IllegalArgumentException("Error: bad request");
+        switch (color) {
+            case "white":
+                if (game.whiteUsername() != null && !game.whiteUsername().equals(username)) {
+                    throw new IllegalStateException("Error: already taken");
+                }
+                game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                break;
+            case "black":
+                if (game.blackUsername() != null && !game.blackUsername().equals(username)) {
+                    throw new IllegalStateException("Error: already taken");
+                }
+                game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                break;
+            case "observer":
+                break;
+            default:
+                throw new IllegalArgumentException("Error: bad request");
         }
 
         gameDAO.updateGame(game);
-
         return new JoinResult();
     }
 
