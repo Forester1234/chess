@@ -6,6 +6,7 @@ import dataaccess.mysql.SqlGameDAO;
 import dataaccess.mysql.SqlUserDAO;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
+import server.websocket.WebSocketHandler;
 import service.Service;
 
 public class Server {
@@ -21,8 +22,10 @@ public class Server {
             System.err.println("Failed to initialize the database");
         }
 
-        javalin = Javalin.create(config -> {config.staticFiles.add("web");
-        config.jsonMapper(new JavalinGson());});
+        javalin = Javalin.create(config -> {
+            config.staticFiles.add("web");
+            config.jsonMapper(new JavalinGson());
+        });
 
         SqlAuthDAO authDAO = new SqlAuthDAO();
         SqlGameDAO gameDAO = new SqlGameDAO();
@@ -38,6 +41,9 @@ public class Server {
         javalin.post("/game", handler::makeGame);
         javalin.put("/game", handler::joinGame);
         javalin.delete("/db", handler::clearAll);
+
+        WebSocketHandler wsHandler = new WebSocketHandler();
+        wsHandler.registerEndpoints(javalin);
     }
 
     public int run(int desiredPort) {

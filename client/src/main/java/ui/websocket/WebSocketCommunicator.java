@@ -14,10 +14,8 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.net.URI;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-@ClientEndpoint
 public class WebSocketCommunicator {
 
     private Session session;
@@ -46,18 +44,15 @@ public class WebSocketCommunicator {
     }
 
 
-    @OnOpen
     public void onConnect(Session sess) {
         this.session = sess;
         System.out.println("WebSocket connected.");
     }
 
-    @OnClose
     public void onClose(int statusCode, String reason) {
         System.out.println("WebSocket closed: " + reason);
     }
 
-    @OnMessage
     public void onMessage(String msg) {
         try {
             ServerMessage message = gson.fromJson(msg, ServerMessage.class);
