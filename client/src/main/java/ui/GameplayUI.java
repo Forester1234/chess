@@ -59,13 +59,13 @@ public class GameplayUI {
 
     private void handleUserInput(String input) {
         switch (input) {
-            case "Help" -> printHelp();
+            case "help" -> printHelp();
             case "1" -> drawBoard();
             case "2" -> doMove();
             case "3" -> highlight();
             case "4" -> {leave();}
             case "5" -> {resign();}
-            default -> System.out.println("Unknown command. Type 'help'.");
+            default -> System.out.println("Unknown command. Type 'Help'.");
         }
     }
 
@@ -202,7 +202,6 @@ public class GameplayUI {
             case LOAD_GAME -> {
                 LoadGameMessage lg = (LoadGameMessage) msg;
                 this.game = lg.game;
-                drawBoard();
             }
 
             case ERROR -> {

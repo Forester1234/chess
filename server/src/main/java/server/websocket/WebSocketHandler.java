@@ -31,6 +31,7 @@ public class WebSocketHandler {
     public void registerEndpoints(Javalin app) {
         app.ws("/ws", ws -> {
             ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
                 System.out.println("Client connected: " + ctx.sessionId());
             });
 

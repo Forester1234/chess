@@ -26,7 +26,7 @@ public class WebSocketCommunicator {
     public WebSocketCommunicator(String serverUrl) throws Exception {
         String wsUrl = serverUrl.replace("http", "ws") + "/ws";
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        container.connectToServer(this, new URI(wsUrl));
+        session = container.connectToServer(this, new URI(wsUrl));
     }
 
     public void setOnMessage(Consumer<ServerMessage> callback) {
@@ -49,7 +49,6 @@ public class WebSocketCommunicator {
     public void onConnect(Session sess) {
         this.session = sess;
         System.out.println("WebSocket connected.");
-        startHeartbeat();
 
         if (pendingCommand != null) {
             send(pendingCommand);
@@ -88,19 +87,5 @@ public class WebSocketCommunicator {
     @OnError
     public void onError(Session sess, Throwable t) {
         t.printStackTrace();
-    }
-
-    public void startHeartbeat() {
-        new Thread(() -> {
-            while (session != null && session.isOpen()) {
-                try {
-                    session.getBasicRemote().sendText("{\"type\":\"PING\"}");
-                    Thread.sleep(30_000); // every 30 seconds
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
-            }
-        }).start();
     }
 }
