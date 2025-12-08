@@ -52,7 +52,6 @@ public class GameplayUI {
         drawBoard();
 
         while (running) {
-            System.out.print("\n(game)>");
             handleUserInput(scanner.nextLine().trim().toLowerCase());
         }
     }
@@ -94,6 +93,8 @@ public class GameplayUI {
         }
 
         System.out.println();
+
+        System.out.print("\n(game)>");
     }
 
     private void doMove() {
@@ -166,7 +167,18 @@ public class GameplayUI {
             return;
         }
 
+        ChessPiece piece = game.game().getBoard().getPiece(pos);
+        if (piece == null) {
+            System.out.println("There is no piece on that square to highlight.");
+            return;
+        }
+
         Collection<ChessMove> moves = game.game().validMoves(pos);
+        if (moves.isEmpty()) {
+            System.out.println("That piece has no legal moves.");
+            return;
+        }
+
         highlightBoard(pos, moves);
     }
 
@@ -202,6 +214,7 @@ public class GameplayUI {
             case LOAD_GAME -> {
                 LoadGameMessage lg = (LoadGameMessage) msg;
                 this.game = lg.game;
+                drawBoard();
             }
 
             case ERROR -> {
@@ -211,7 +224,7 @@ public class GameplayUI {
 
             case NOTIFICATION -> {
                 NotificationMessage n = (NotificationMessage) msg;
-                System.out.println(SET_BG_COLOR_BLUE + "*** " + n.message + " ***" + RESET_TEXT_COLOR);
+                System.out.println(SET_BG_COLOR_BLUE + SET_TEXT_COLOR_BLACK + "*** " + n.message + " ***" + RESET_TEXT_COLOR + RESET_BG_COLOR);
             }
         }
     }

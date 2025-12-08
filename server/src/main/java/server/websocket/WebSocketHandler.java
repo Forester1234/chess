@@ -44,7 +44,7 @@ public class WebSocketHandler {
                     case MAKE_MOVE -> handleMakeMove(ctx, cmd);
                     case LEAVE -> handleLeave(ctx, cmd);
                     case RESIGN -> handleResign(ctx, cmd);
-                    default -> sendError(ctx, "Error: unknown command");
+                    default -> sendError(ctx, "unknown command");
                 }
             });
 
@@ -54,7 +54,7 @@ public class WebSocketHandler {
             });
 
             ws.onError(ctx -> {
-                System.out.println("WebSocket error: " + ctx.error());
+                System.out.println(ctx.error());
             });
         });
     }
@@ -70,7 +70,7 @@ public class WebSocketHandler {
         GameData game = check.gameData();
 
         if (!connectionManager.addUserToGame(cmd.getGameID(), username, ctx)) {
-            sendError(ctx, "Error: already taken");
+            sendError(ctx, "already taken");
             ctx.session.close();
             return;
         }
@@ -98,7 +98,7 @@ public class WebSocketHandler {
         ChessGame game = gameData.game();
 
         if (game.isFinished()) {
-            sendError(ctx, "Error: game already over");
+            sendError(ctx, "game already over");
             return;
         }
 
@@ -108,18 +108,18 @@ public class WebSocketHandler {
         } else if (username.equals(gameData.blackUsername())) {
             playerColor = "BLACK";
         } else {
-            sendError(ctx, "Error: observers cannot make moves");
+            sendError(ctx, "observers cannot make moves");
             return;
         }
         if (!playerColor.equalsIgnoreCase(game.getTeamTurn().name())) {
-            sendError(ctx, "Error: not your turn");
+            sendError(ctx, "not your turn");
             return;
         }
 
         try {
             game.makeMove(cmd.getMove());
         } catch (InvalidMoveException e) {
-            sendError(ctx, "Error: illegal move");
+            sendError(ctx, "illegal move");
             return;
         }
 
@@ -188,7 +188,7 @@ public class WebSocketHandler {
         ChessGame game = gameData.game();
 
         if (game.isFinished()) {
-            sendError(ctx, "Error: game already over");
+            sendError(ctx, "game already over");
             return;
         }
 
@@ -199,7 +199,7 @@ public class WebSocketHandler {
                 : null;
 
         if (winner == null) {
-            sendError(ctx, "Error: you are not part of this game");
+            sendError(ctx, "you are not part of this game");
             return;
         }
 
@@ -216,13 +216,13 @@ public class WebSocketHandler {
     private BasicCheckResult testBasic (WsContext ctx, UserGameCommand cmd) throws DataAccessException {
         var auth = service.getAuth(cmd.getAuthToken());
         if (auth == null) {
-            sendError(ctx, "Error: unauthorized");
+            sendError(ctx, "unauthorized");
             return null;
         }
 
         GameData gameData = service.getGame(cmd.getGameID());
         if (gameData == null) {
-            sendError(ctx, "Error: game does not exist");
+            sendError(ctx, "game does not exist");
             return null;
         }
 
