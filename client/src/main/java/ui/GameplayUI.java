@@ -134,7 +134,7 @@ public class GameplayUI {
                     move
             ));
         } catch (InvalidMoveException e) {
-            System.out.println("Invalid move: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
